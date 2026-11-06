@@ -1,0 +1,13 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Frontend (backend has its own .gitignore)
+node_modules/
+frontend/dist/
