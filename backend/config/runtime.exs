@@ -25,8 +25,7 @@ config :vet_clinic, VetClinicWeb.Endpoint,
 
 # The clinic's local time zone. "Today's schedule" and other day-based
 # queries use this zone's midnight-to-midnight, while times are stored in UTC.
-config :vet_clinic, :clinic_time_zone,
-  System.get_env("CLINIC_TIME_ZONE", "America/Chicago")
+config :vet_clinic, :clinic_time_zone, System.get_env("CLINIC_TIME_ZONE", "America/Chicago")
 
 if config_env() == :prod do
   database_url =

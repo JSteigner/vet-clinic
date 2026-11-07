@@ -10,7 +10,18 @@ defmodule VetClinic.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      dialyzer: dialyzer()
+    ]
+  end
+
+  # PLTs are cached in priv/plts (git-ignored) so they're only built once.
+  defp dialyzer do
+    [
+      plt_local_path: "priv/plts",
+      plt_core_path: "priv/plts",
+      plt_add_apps: [:mix, :ex_unit],
+      flags: [:unmatched_returns, :error_handling]
     ]
   end
 
@@ -53,7 +64,9 @@ defmodule VetClinic.MixProject do
       {:absinthe_phoenix, "~> 2.0"},
       {:dataloader, "~> 2.0"},
       {:cors_plug, "~> 3.0"},
-      {:tz, "~> 0.28"}
+      {:tz, "~> 0.28"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -69,7 +82,13 @@ defmodule VetClinic.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
+      precommit: [
+        "compile --warnings-as-errors",
+        "deps.unlock --unused",
+        "format",
+        "credo --strict",
+        "test"
+      ]
     ]
   end
 end
