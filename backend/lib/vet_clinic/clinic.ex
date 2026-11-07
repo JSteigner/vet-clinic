@@ -1,11 +1,12 @@
 defmodule VetClinic.Clinic do
   @moduledoc """
-  The Clinic context: owners, their pets, and the pets' appointments.
+  The Clinic context: owners, their pets, vets, and appointments that
+  book a pet with a vet.
   """
 
   import Ecto.Query, warn: false
 
-  alias VetClinic.Clinic.{Appointment, Owner, Pet}
+  alias VetClinic.Clinic.{Appointment, Owner, Pet, Vet}
   alias VetClinic.Repo
 
   @doc """
@@ -28,6 +29,22 @@ defmodule VetClinic.Clinic do
   def create_owner(attrs) do
     %Owner{}
     |> Owner.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  ## Vets
+
+  def list_vets do
+    Vet
+    |> order_by(:name)
+    |> Repo.all()
+  end
+
+  def get_vet(id), do: Repo.get(Vet, id)
+
+  def create_vet(attrs) do
+    %Vet{}
+    |> Vet.changeset(attrs)
     |> Repo.insert()
   end
 

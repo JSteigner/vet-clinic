@@ -1,6 +1,6 @@
 # Vet Clinic
 
-A small veterinary clinic app for managing **owners**, their **pets** and **appointments**, with a schedule that updates live.
+A small veterinary clinic app for managing **owners**, their **pets**, the clinic's **vets** and **appointments**, with a schedule that updates live.
 
 Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React + Apollo Client** on the front end, the stack I'm aiming to work in. The app is deliberately small; the goal is a polished, well-tested example rather than a sprawling one.
 
@@ -12,8 +12,8 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 
 - **Today's schedule.** Shows the clinic's appointments for the day, in the clinic's own time zone.
 - **Live updates.** A GraphQL subscription pushes new bookings and status changes (checked in, completed, cancelled) to every open browser.
-- **Booking.** Book an appointment for a pet. Times in the past and unknown pets are rejected with clear validation errors.
-- **Patients.** Owners and their pets.
+- **Booking.** Book an appointment for a pet with a vet. Times in the past and unknown pets or vets are rejected with clear validation errors.
+- **Patients and vets.** Owners and their pets, and the vets who see them.
 
 ## Tech stack
 
@@ -30,6 +30,7 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 - [x] Postgres setup: local install or Docker Compose
 - [x] Phoenix API scaffold with Absinthe dependencies
 - [x] `Clinic` context: Owner, Pet and Appointment schemas, validations, migration
+- [x] Vet schema; every appointment is booked with a vet
 - [x] Configurable clinic time zone (`CLINIC_TIME_ZONE`)
 - [x] Seed data
 - [ ] GraphQL schema: queries, mutations, `appointmentChanged` subscription
@@ -42,12 +43,13 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 ```graphql
 type Query {
   owners: [Owner!]!
+  vets: [Vet!]!
   pet(id: ID!): Pet
   appointments(date: Date): [Appointment!]!   # defaults to today in the clinic's time zone
 }
 
 type Mutation {
-  createAppointment(petId: ID!, startsAt: DateTime!, reason: String!): Appointment
+  createAppointment(petId: ID!, vetId: ID!, startsAt: DateTime!, reason: String!): Appointment
   updateAppointmentStatus(id: ID!, status: AppointmentStatus!): Appointment
 }
 

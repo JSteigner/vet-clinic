@@ -7,6 +7,10 @@ defmodule VetClinic.Clinic.Owner do
 
   import Ecto.Changeset
 
+  @required_fields ~w[name email]a
+  @optional_fields ~w[phone]a
+  @fields @required_fields ++ @optional_fields
+
   schema "owners" do
     field :name, :string
     field :email, :string
@@ -19,8 +23,8 @@ defmodule VetClinic.Clinic.Owner do
 
   def changeset(owner, attrs) do
     owner
-    |> cast(attrs, [:name, :email, :phone])
-    |> validate_required([:name, :email])
+    |> cast(attrs, @fields)
+    |> validate_required(@required_fields)
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must be a valid email")
     |> unique_constraint(:email)
   end

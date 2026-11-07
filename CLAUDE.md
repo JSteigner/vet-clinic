@@ -51,6 +51,18 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
 
     alias VetClinic.Clinic.{Appointment, Owner}
   ```
+- In Ecto schemas, declare changeset fields as module attributes using the `~w[]a` sigil, and put enum values in their own attribute:
+  ```elixir
+  @required_fields ~w[name species owner_id]a
+  @optional_fields ~w[breed birth_date]a
+  @fields @required_fields ++ @optional_fields
+
+  @species ~w[dog cat bird rabbit other]a
+
+  schema "pets" do
+    field :species, Ecto.Enum, values: @species
+  ```
+  Then use `cast(attrs, @fields)` and `validate_required(@required_fields)` in the changeset.
 - Group aliases that share a parent module with curly braces:
   ```elixir
   alias VetClinic.Clinic.{Appointment, Owner, Pet}

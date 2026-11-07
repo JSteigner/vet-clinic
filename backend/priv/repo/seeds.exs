@@ -6,12 +6,24 @@
 # Appointment times are relative to "today" in the clinic's time zone.
 
 alias VetClinic.Clinic
-alias VetClinic.Clinic.{Appointment, Owner, Pet}
+alias VetClinic.Clinic.{Appointment, Owner, Pet, Vet}
 alias VetClinic.Repo
 
 Repo.delete_all(Appointment)
 Repo.delete_all(Pet)
 Repo.delete_all(Owner)
+Repo.delete_all(Vet)
+
+vets =
+  for attrs <- [
+        %{name: "Dr. Elena Alvarez", email: "elena.alvarez@vetclinic.example"},
+        %{name: "Dr. Daniel Kim", email: "daniel.kim@vetclinic.example"},
+        %{name: "Dr. Ada Okafor", email: "ada.okafor@vetclinic.example"}
+      ],
+      into: %{} do
+    {:ok, vet} = Clinic.create_vet(attrs)
+    {vet.name, vet}
+  end
 
 owners =
   for attrs <- [
@@ -61,20 +73,22 @@ at = fn days_from_today, time ->
 end
 
 appointments = [
-  {"Biscuit", at.(0, ~T[08:30:00]), "Annual checkup and vaccines", :completed},
-  {"Luna", at.(0, ~T[09:30:00]), "Dental cleaning", :checked_in},
-  {"Rex", at.(0, ~T[11:00:00]), "Limping on back left leg", :scheduled},
-  {"Kiwi", at.(0, ~T[13:30:00]), "Beak and nail trim", :scheduled},
-  {"Duke", at.(0, ~T[15:00:00]), "Senior wellness bloodwork", :scheduled},
-  {"Mochi", at.(0, ~T[16:00:00]), "Skin rash follow-up", :cancelled},
-  {"Clover", at.(1, ~T[10:00:00]), "Spay consultation", :scheduled},
-  {"Pickle", at.(1, ~T[14:00:00]), "Shedding problems", :scheduled},
-  {"Biscuit", at.(2, ~T[09:00:00]), "Ear infection recheck", :scheduled}
+  {"Biscuit", "Dr. Elena Alvarez", at.(0, ~T[08:30:00]), "Annual checkup and vaccines",
+   :completed},
+  {"Luna", "Dr. Daniel Kim", at.(0, ~T[09:30:00]), "Dental cleaning", :checked_in},
+  {"Rex", "Dr. Elena Alvarez", at.(0, ~T[11:00:00]), "Limping on back left leg", :scheduled},
+  {"Kiwi", "Dr. Ada Okafor", at.(0, ~T[13:30:00]), "Beak and nail trim", :scheduled},
+  {"Duke", "Dr. Daniel Kim", at.(0, ~T[15:00:00]), "Senior wellness bloodwork", :scheduled},
+  {"Mochi", "Dr. Elena Alvarez", at.(0, ~T[16:00:00]), "Skin rash follow-up", :cancelled},
+  {"Clover", "Dr. Ada Okafor", at.(1, ~T[10:00:00]), "Spay consultation", :scheduled},
+  {"Pickle", "Dr. Ada Okafor", at.(1, ~T[14:00:00]), "Shedding problems", :scheduled},
+  {"Biscuit", "Dr. Daniel Kim", at.(2, ~T[09:00:00]), "Ear infection recheck", :scheduled}
 ]
 
-for {pet_name, starts_at, reason, status} <- appointments do
+for {pet_name, vet_name, starts_at, reason, status} <- appointments do
   Repo.insert!(%Appointment{
     pet_id: Map.fetch!(pets, pet_name).id,
+    vet_id: Map.fetch!(vets, vet_name).id,
     starts_at: starts_at,
     reason: reason,
     status: status
@@ -82,5 +96,6 @@ for {pet_name, starts_at, reason, status} <- appointments do
 end
 
 IO.puts(
-  "Seeded #{map_size(owners)} owners, #{map_size(pets)} pets, #{length(appointments)} appointments."
+  "Seeded #{map_size(vets)} vets, #{map_size(owners)} owners, #{map_size(pets)} pets, " <>
+    "#{length(appointments)} appointments."
 )
