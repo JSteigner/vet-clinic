@@ -1,11 +1,13 @@
 import Config
 
-# Configure your database
+# Configure your database. Works with a local Postgres (Postgres.app,
+# Homebrew) or docker-compose.yml; override with DB_HOST, DB_PORT,
+# DB_USER and DB_PASSWORD.
 config :vet_clinic, VetClinic.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  port: 5433,
+  username: System.get_env("DB_USER", "postgres"),
+  password: System.get_env("DB_PASSWORD", "postgres"),
+  hostname: System.get_env("DB_HOST", "localhost"),
+  port: String.to_integer(System.get_env("DB_PORT", "5432")),
   database: "vet_clinic_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,

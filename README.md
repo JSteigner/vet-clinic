@@ -21,13 +21,13 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 |---|---|
 | API | Elixir 1.20, OTP 29, Phoenix 1.8 (API only) |
 | GraphQL | Absinthe 1.12, Absinthe.Phoenix (subscriptions over Phoenix Channels), Dataloader |
-| Database | PostgreSQL 16 via Ecto |
+| Database | PostgreSQL 17 via Ecto |
 | Frontend | React, TypeScript, Vite, Apollo Client |
 | Quality | ExUnit, Credo (strict), `mix format`, compile with warnings as errors |
 
 ## Status
 
-- [x] Postgres via Docker Compose
+- [x] Postgres setup: local install or Docker Compose
 - [x] Phoenix API scaffold with Absinthe dependencies
 - [x] `Clinic` context: Owner, Pet and Appointment schemas, validations, migration
 - [x] Configurable clinic time zone (`CLINIC_TIME_ZONE`)
@@ -61,20 +61,21 @@ type Subscription {
 ### Prerequisites
 
 - Elixir 1.20 / OTP 29 and Node 22 (versions pinned in `.tool-versions` for asdf)
-- Docker
+- PostgreSQL 17 on port 5432, with a `postgres` / `postgres` superuser. Use either:
+  - **A local install**, such as [Postgres.app](https://postgresapp.com) or `brew install postgresql@17`, or
+  - **Docker**: `docker compose up -d` starts one for you.
 
 ### Run it
 
 ```bash
-# 1. Start Postgres (listens on port 5433 so it won't clash with a local Postgres)
+# Only if you're using Docker for Postgres
 docker compose up -d
 
-# 2. Install deps, create and migrate the database, load seed data
+# Install deps, create and migrate the database, load seed data
 cd backend
 mix setup
-mix run priv/repo/seeds.exs
 
-# 3. Start the API on http://localhost:4000
+# Start the API on http://localhost:4000
 mix phx.server
 ```
 
@@ -83,6 +84,9 @@ mix phx.server
 | Env var | Default | Purpose |
 |---|---|---|
 | `CLINIC_TIME_ZONE` | `America/Chicago` | The clinic's local zone. "Today" and day-based queries use this zone's midnight to midnight; times are stored in UTC. |
+| `DB_HOST` | `localhost` | Postgres host (dev and test) |
+| `DB_PORT` | `5432` | Postgres port. Docker Compose uses it too, so `DB_PORT=5433` moves both if 5432 is taken. |
+| `DB_USER` / `DB_PASSWORD` | `postgres` / `postgres` | Postgres credentials (dev and test) |
 
 ### Checks
 
@@ -95,7 +99,7 @@ mix precommit   # compile with warnings as errors, format, credo --strict, test
 
 ```
 vet-clinic/
-├── docker-compose.yml        # Postgres 16 on port 5433
+├── docker-compose.yml        # Optional Postgres 17 on port 5432
 ├── backend/                  # Phoenix + Absinthe API
 │   ├── lib/vet_clinic/       # Business logic (Clinic context and schemas)
 │   ├── lib/vet_clinic_web/   # Web layer: endpoint, router, GraphQL schema

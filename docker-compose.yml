@@ -1,14 +1,17 @@
+# Optional: use this if you don't have Postgres installed locally.
+# Listens on 5432 by default. If something else is already on 5432,
+# `export DB_PORT=5433` and both Docker Compose and Mix will use it.
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     container_name: vet-clinic-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
-      - vet_clinic_pgdata:/var/lib/postgresql/data
+      - vet_clinic_pg17data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 2s
@@ -16,4 +19,4 @@ services:
       retries: 20
 
 volumes:
-  vet_clinic_pgdata:
+  vet_clinic_pg17data:
