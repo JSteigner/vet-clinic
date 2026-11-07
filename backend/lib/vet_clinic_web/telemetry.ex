@@ -1,5 +1,10 @@
 defmodule VetClinicWeb.Telemetry do
+  @moduledoc """
+  Supervises telemetry metrics and periodic measurements for the app.
+  """
+
   use Supervisor
+
   import Telemetry.Metrics
 
   def start_link(arg) do

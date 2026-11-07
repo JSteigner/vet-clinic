@@ -27,14 +27,22 @@ owners =
 
 pets =
   for {owner_name, attrs} <- [
-        {"Maria Lopez", %{name: "Biscuit", species: :dog, breed: "Golden Retriever", birth_date: ~D[2019-04-12]}},
-        {"Maria Lopez", %{name: "Mochi", species: :cat, breed: "Siamese", birth_date: ~D[2021-08-30]}},
-        {"James Carter", %{name: "Rex", species: :dog, breed: "German Shepherd", birth_date: ~D[2017-01-05]}},
-        {"James Carter", %{name: "Kiwi", species: :bird, breed: "Budgerigar", birth_date: ~D[2023-03-18]}},
-        {"Priya Shah", %{name: "Luna", species: :cat, breed: "Maine Coon", birth_date: ~D[2020-11-02]}},
-        {"Priya Shah", %{name: "Clover", species: :rabbit, breed: "Holland Lop", birth_date: ~D[2022-06-21]}},
-        {"Tom Becker", %{name: "Duke", species: :dog, breed: "Beagle", birth_date: ~D[2015-09-14]}},
-        {"Tom Becker", %{name: "Pickle", species: :other, breed: "Leopard Gecko", birth_date: ~D[2021-02-07]}}
+        {"Maria Lopez",
+         %{name: "Biscuit", species: :dog, breed: "Golden Retriever", birth_date: ~D[2019-04-12]}},
+        {"Maria Lopez",
+         %{name: "Mochi", species: :cat, breed: "Siamese", birth_date: ~D[2021-08-30]}},
+        {"James Carter",
+         %{name: "Rex", species: :dog, breed: "German Shepherd", birth_date: ~D[2017-01-05]}},
+        {"James Carter",
+         %{name: "Kiwi", species: :bird, breed: "Budgerigar", birth_date: ~D[2023-03-18]}},
+        {"Priya Shah",
+         %{name: "Luna", species: :cat, breed: "Maine Coon", birth_date: ~D[2020-11-02]}},
+        {"Priya Shah",
+         %{name: "Clover", species: :rabbit, breed: "Holland Lop", birth_date: ~D[2022-06-21]}},
+        {"Tom Becker",
+         %{name: "Duke", species: :dog, breed: "Beagle", birth_date: ~D[2015-09-14]}},
+        {"Tom Becker",
+         %{name: "Pickle", species: :other, breed: "Leopard Gecko", birth_date: ~D[2021-02-07]}}
       ],
       into: %{} do
     owner = Map.fetch!(owners, owner_name)
@@ -73,4 +81,6 @@ for {pet_name, starts_at, reason, status} <- appointments do
   })
 end
 
-IO.puts("Seeded #{map_size(owners)} owners, #{map_size(pets)} pets, #{length(appointments)} appointments.")
+IO.puts(
+  "Seeded #{map_size(owners)} owners, #{map_size(pets)} pets, #{length(appointments)} appointments."
+)

@@ -1,4 +1,8 @@
 defmodule VetClinicWeb.Endpoint do
+  @moduledoc """
+  HTTP and WebSocket entry point for the API.
+  """
+
   use Phoenix.Endpoint, otp_app: :vet_clinic
 
   # The session will be stored in the cookie and signed,

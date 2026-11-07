@@ -1,5 +1,11 @@
 defmodule VetClinic.Clinic.Pet do
+  @moduledoc """
+  A patient of the clinic. Every pet belongs to an owner and can have
+  many appointments.
+  """
+
   use Ecto.Schema
+
   import Ecto.Changeset
 
   schema "pets" do

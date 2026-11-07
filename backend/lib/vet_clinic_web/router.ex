@@ -1,4 +1,8 @@
 defmodule VetClinicWeb.Router do
+  @moduledoc """
+  Routes for the JSON/GraphQL API.
+  """
+
   use VetClinicWeb, :router
 
   pipeline :api do

@@ -37,6 +37,20 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
   ```
 - Don't pipe just once. Use a plain function call instead (`Repo.get(Owner, id)`, not `Owner |> Repo.get(id)`).
 - Start a pipeline with a bare value (variable, module or struct), not a function call.
+- Order module directives as `@moduledoc`, `@behaviour`, `use`, `import`, `require`, `alias`, module attributes, `defstruct`, `@type`, with a blank line between each group.
+- Every module starts with a `@moduledoc` directly under `defmodule` (`@moduledoc false` for internal modules), followed by a blank line.
+  ```elixir
+  defmodule VetClinic.Clinic.Pet do
+    @moduledoc """
+    A patient of the clinic.
+    """
+
+    use Ecto.Schema
+
+    import Ecto.Changeset
+
+    alias VetClinic.Clinic.{Appointment, Owner}
+  ```
 - Group aliases that share a parent module with curly braces:
   ```elixir
   alias VetClinic.Clinic.{Appointment, Owner, Pet}

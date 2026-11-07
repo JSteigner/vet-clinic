@@ -1,5 +1,13 @@
 defmodule VetClinic.Clinic.Appointment do
+  @moduledoc """
+  A booked visit for a pet.
+
+  Status starts as `:scheduled` and moves to `:checked_in` and `:completed`,
+  or to `:cancelled`. `starts_at` is stored in UTC.
+  """
+
   use Ecto.Schema
+
   import Ecto.Changeset
 
   schema "appointments" do
