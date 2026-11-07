@@ -21,7 +21,7 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 |---|---|
 | API | Elixir 1.20, OTP 29, Phoenix 1.8 (API only) |
 | GraphQL | Absinthe 1.12, Absinthe.Phoenix (subscriptions over Phoenix Channels), Dataloader |
-| Database | PostgreSQL 17 via Ecto |
+| Database | PostgreSQL 18 via Ecto |
 | Frontend | React, TypeScript, Vite, Apollo Client |
 | Quality | ExUnit, Credo (strict), `mix format`, compile with warnings as errors |
 
@@ -61,8 +61,8 @@ type Subscription {
 ### Prerequisites
 
 - Elixir 1.20 / OTP 29 and Node 22 (versions pinned in `.tool-versions` for asdf)
-- PostgreSQL 17 on port 5432, with a `postgres` / `postgres` superuser. Use either:
-  - **A local install**, such as [Postgres.app](https://postgresapp.com) or `brew install postgresql@17`, or
+- PostgreSQL 18 on port 5432, with a `postgres` / `postgres` superuser. Use either:
+  - **A local install**, such as [Postgres.app](https://postgresapp.com) or `brew install postgresql@18`, or
   - **Docker**: `docker compose up -d` starts one for you.
 
 ### Run it
@@ -99,7 +99,7 @@ mix precommit   # compile with warnings as errors, format, credo --strict, test
 
 ```
 vet-clinic/
-├── docker-compose.yml        # Optional Postgres 17 on port 5432
+├── docker-compose.yml        # Optional Postgres 18 on port 5432
 ├── backend/                  # Phoenix + Absinthe API
 │   ├── lib/vet_clinic/       # Business logic (Clinic context and schemas)
 │   ├── lib/vet_clinic_web/   # Web layer: endpoint, router, GraphQL schema
