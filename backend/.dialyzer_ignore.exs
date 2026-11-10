@@ -7,6 +7,6 @@
   # MapSet.t() inside Ecto.Multi.t(). It flags any call that receives a new
   # Multi, even Ecto's own Multi.update/3. The code runs correctly.
   # Affects Owners.delete_owner/1 and Pets.delete_pet/1.
-  {"lib/vet_clinic/owners.ex", :call_without_opaque},
-  {"lib/vet_clinic/pets.ex", :call_without_opaque}
+  {"lib/vet_clinic/owners/owners.ex", :call_without_opaque},
+  {"lib/vet_clinic/pets/pets.ex", :call_without_opaque}
 ]

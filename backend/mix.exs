@@ -101,7 +101,8 @@ defmodule VetClinic.MixProject do
         "credo --strict",
         "ecto.create --quiet",
         "ecto.migrate --quiet",
-        "coveralls"
+        "coveralls",
+        "dialyzer"
       ]
     ]
   end

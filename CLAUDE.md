@@ -8,7 +8,7 @@ Postgres 18 on port 5432 by default: a local install (Postgres.app here) or `doc
 ## Commands
 Run these from `backend/`:
 - Test: `mix test` (single test: `mix test test/path_test.exs:42`)
-- Before finishing any task: `mix precommit` (compile with warnings as errors, unlock unused deps, format, `credo --strict`, then tests with a 90% minimum coverage via `mix coveralls`)
+- Before finishing any task: `mix precommit` (compile with warnings as errors, unlock unused deps, format, `credo --strict`, tests with a 90% minimum coverage via `mix coveralls`, then `dialyzer`)
 - Coverage report: `mix coveralls.html` (writes `cover/excoveralls.html`)
 
 ## Architecture

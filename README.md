@@ -95,7 +95,7 @@ mix phx.server
 
 ```bash
 cd backend
-mix precommit         # compile with warnings as errors, format, credo --strict, tests + 90% coverage
+mix precommit         # compile with warnings as errors, format, credo --strict, tests + 90% coverage, dialyzer
 mix coveralls.html    # browsable coverage report in cover/excoveralls.html
 ```
 
