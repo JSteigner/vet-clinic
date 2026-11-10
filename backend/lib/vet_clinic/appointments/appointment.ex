@@ -1,4 +1,4 @@
-defmodule VetClinic.Clinic.Appointment do
+defmodule VetClinic.Appointments.Appointment do
   @moduledoc """
   A booked visit for a pet with a vet. The owner is reached through the pet.
 
@@ -21,8 +21,8 @@ defmodule VetClinic.Clinic.Appointment do
     field :reason, :string
     field :status, Ecto.Enum, values: @statuses, default: :scheduled
 
-    belongs_to :pet, VetClinic.Clinic.Pet
-    belongs_to :vet, VetClinic.Clinic.Vet
+    belongs_to :pet, VetClinic.Pets.Pet
+    belongs_to :vet, VetClinic.Vets.Vet
 
     timestamps(type: :utc_datetime)
   end

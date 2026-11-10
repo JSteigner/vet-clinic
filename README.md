@@ -103,7 +103,7 @@ mix precommit   # compile with warnings as errors, format, credo --strict, test
 vet-clinic/
 ├── docker-compose.yml        # Optional Postgres 18 on port 5432
 ├── backend/                  # Phoenix + Absinthe API
-│   ├── lib/vet_clinic/       # Business logic (Clinic context and schemas)
+│   ├── lib/vet_clinic/       # Business logic: Clinic API, per-schema contexts
 │   ├── lib/vet_clinic_web/   # Web layer: endpoint, router, GraphQL schema
 │   ├── priv/repo/            # Migrations and seeds
 │   └── test/

@@ -5,9 +5,12 @@
 # It wipes existing clinic data first, so it can be re-run safely in dev.
 # Appointment times are relative to "today" in the clinic's time zone.
 
+alias VetClinic.Appointments.Appointment
 alias VetClinic.Clinic
-alias VetClinic.Clinic.{Appointment, Owner, Pet, Vet}
+alias VetClinic.Owners.Owner
+alias VetClinic.Pets.Pet
 alias VetClinic.Repo
+alias VetClinic.Vets.Vet
 
 Repo.delete_all(Appointment)
 Repo.delete_all(Pet)

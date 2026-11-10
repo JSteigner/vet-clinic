@@ -1,6 +1,7 @@
-defmodule VetClinic.Clinic.Owner do
+defmodule VetClinic.Vets.Vet do
   @moduledoc """
-  A pet owner: a client of the clinic. Email addresses are unique.
+  A veterinarian at the clinic. Every appointment is booked with a vet.
+  Email addresses are unique.
   """
 
   use Ecto.Schema
@@ -8,21 +9,20 @@ defmodule VetClinic.Clinic.Owner do
   import Ecto.Changeset
 
   @required_fields ~w[name email]a
-  @optional_fields ~w[phone]a
+  @optional_fields ~w[]a
   @fields @required_fields ++ @optional_fields
 
-  schema "owners" do
+  schema "vets" do
     field :name, :string
     field :email, :string
-    field :phone, :string
 
-    has_many :pets, VetClinic.Clinic.Pet
+    has_many :appointments, VetClinic.Appointments.Appointment
 
     timestamps(type: :utc_datetime)
   end
 
-  def changeset(owner, attrs) do
-    owner
+  def changeset(vet, attrs) do
+    vet
     |> cast(attrs, @fields)
     |> validate_required(@required_fields)
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must be a valid email")

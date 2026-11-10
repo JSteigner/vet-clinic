@@ -1,13 +1,11 @@
 defmodule VetClinic.Clinic do
   @moduledoc """
-  The Clinic context: owners, their pets, vets, and appointments that
-  book a pet with a vet.
+  The clinic's public API. The web layer and scripts call only this module;
+  it delegates to the `VetClinic.Owners`, `VetClinic.Pets`, `VetClinic.Vets`
+  and `VetClinic.Appointments` contexts.
   """
 
-  import Ecto.Query, warn: false
-
-  alias VetClinic.Clinic.{Appointment, Owner, Pet, Vet}
-  alias VetClinic.Repo
+  alias VetClinic.{Appointments, Owners, Pets, Repo, Vets}
 
   @doc """
   Dataloader source used by the GraphQL schema to batch association loads.
@@ -18,93 +16,27 @@ defmodule VetClinic.Clinic do
 
   ## Owners
 
-  def list_owners do
-    Owner
-    |> order_by(:name)
-    |> Repo.all()
-  end
-
-  def get_owner(id), do: Repo.get(Owner, id)
-
-  def create_owner(attrs) do
-    %Owner{}
-    |> Owner.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  ## Vets
-
-  def list_vets do
-    Vet
-    |> order_by(:name)
-    |> Repo.all()
-  end
-
-  def get_vet(id), do: Repo.get(Vet, id)
-
-  def create_vet(attrs) do
-    %Vet{}
-    |> Vet.changeset(attrs)
-    |> Repo.insert()
-  end
+  defdelegate list_owners(), to: Owners
+  defdelegate get_owner(id), to: Owners
+  defdelegate create_owner(attrs), to: Owners
 
   ## Pets
 
-  def get_pet(id), do: Repo.get(Pet, id)
+  defdelegate get_pet(id), to: Pets
+  defdelegate create_pet(attrs), to: Pets
 
-  def create_pet(attrs) do
-    %Pet{}
-    |> Pet.changeset(attrs)
-    |> Repo.insert()
-  end
+  ## Vets
+
+  defdelegate list_vets(), to: Vets
+  defdelegate get_vet(id), to: Vets
+  defdelegate create_vet(attrs), to: Vets
 
   ## Appointments
 
-  @doc """
-  Lists appointments on the given date in the clinic's time zone,
-  ordered by start time.
-  """
-  def list_appointments_on(%Date{} = date) do
-    time_zone = clinic_time_zone()
-    from = start_of_day_utc(date, time_zone)
-    to = start_of_day_utc(Date.add(date, 1), time_zone)
-
-    Appointment
-    |> where([a], a.starts_at >= ^from and a.starts_at < ^to)
-    |> order_by(:starts_at)
-    |> Repo.all()
-  end
-
-  @doc """
-  Today's date in the clinic's time zone.
-  """
-  def today do
-    clinic_time_zone()
-    |> DateTime.now!()
-    |> DateTime.to_date()
-  end
-
-  def clinic_time_zone do
-    Application.fetch_env!(:vet_clinic, :clinic_time_zone)
-  end
-
-  defp start_of_day_utc(date, time_zone) do
-    date
-    |> DateTime.new!(~T[00:00:00], time_zone)
-    |> DateTime.shift_zone!("Etc/UTC")
-  end
-
-  def get_appointment(id), do: Repo.get(Appointment, id)
-
-  def create_appointment(attrs) do
-    %Appointment{}
-    |> Appointment.create_changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def update_appointment_status(%Appointment{} = appointment, status) do
-    appointment
-    |> Appointment.status_changeset(%{status: status})
-    |> Repo.update()
-  end
+  defdelegate list_appointments_on(date), to: Appointments
+  defdelegate get_appointment(id), to: Appointments
+  defdelegate create_appointment(attrs), to: Appointments
+  defdelegate update_appointment_status(appointment, status), to: Appointments
+  defdelegate today(), to: Appointments
+  defdelegate clinic_time_zone(), to: Appointments
 end

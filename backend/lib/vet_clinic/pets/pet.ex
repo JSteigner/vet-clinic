@@ -1,4 +1,4 @@
-defmodule VetClinic.Clinic.Pet do
+defmodule VetClinic.Pets.Pet do
   @moduledoc """
   A patient of the clinic. Every pet belongs to an owner and can have
   many appointments.
@@ -20,8 +20,8 @@ defmodule VetClinic.Clinic.Pet do
     field :breed, :string
     field :birth_date, :date
 
-    belongs_to :owner, VetClinic.Clinic.Owner
-    has_many :appointments, VetClinic.Clinic.Appointment
+    belongs_to :owner, VetClinic.Owners.Owner
+    has_many :appointments, VetClinic.Appointments.Appointment
 
     timestamps(type: :utc_datetime)
   end
