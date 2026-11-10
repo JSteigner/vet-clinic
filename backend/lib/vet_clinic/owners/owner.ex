@@ -8,6 +8,7 @@ defmodule VetClinic.Owners.Owner do
   import Ecto.Changeset
 
   alias Ecto.Changeset
+
   alias VetClinic.Pets.Pet
 
   @required_fields ~w[name email]a

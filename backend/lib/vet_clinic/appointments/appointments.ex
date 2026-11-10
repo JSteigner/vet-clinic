@@ -9,6 +9,7 @@ defmodule VetClinic.Appointments do
   alias Ecto.Changeset
   alias Ecto.Multi
   alias Ecto.Query
+
   alias VetClinic.Appointments.Appointment
   alias VetClinic.Repo
 

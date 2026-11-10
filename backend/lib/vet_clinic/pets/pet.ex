@@ -10,6 +10,7 @@ defmodule VetClinic.Pets.Pet do
 
   alias Ecto.Association.NotLoaded
   alias Ecto.Changeset
+
   alias VetClinic.Appointments.Appointment
   alias VetClinic.Owners.Owner
 

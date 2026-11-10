@@ -9,6 +9,7 @@ defmodule VetClinic.Owners do
 
   alias Ecto.Changeset
   alias Ecto.Multi
+
   alias VetClinic.Appointments
   alias VetClinic.Owners.Owner
   alias VetClinic.Pets

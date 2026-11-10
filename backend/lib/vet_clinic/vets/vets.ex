@@ -6,6 +6,7 @@ defmodule VetClinic.Vets do
   import Ecto.Query, warn: false
 
   alias Ecto.Changeset
+
   alias VetClinic.Repo
   alias VetClinic.Vets.Vet
 

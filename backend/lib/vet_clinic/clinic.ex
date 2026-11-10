@@ -6,6 +6,7 @@ defmodule VetClinic.Clinic do
   """
 
   alias Ecto.Changeset
+
   alias VetClinic.{Appointments, Owners, Pets, Repo, Vets}
   alias VetClinic.Appointments.Appointment
   alias VetClinic.Owners.Owner

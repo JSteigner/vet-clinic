@@ -9,6 +9,7 @@ defmodule VetClinic.Vets.Vet do
   import Ecto.Changeset
 
   alias Ecto.Changeset
+
   alias VetClinic.Appointments.Appointment
 
   @required_fields ~w[name email]a

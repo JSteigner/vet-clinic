@@ -73,6 +73,14 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
   has_many :appointments, Appointment
   appointments: [Appointment.t()] | Ecto.Association.NotLoaded.t()
   ```
+- Put external aliases (Ecto, Faker, ...) first and `VetClinic` aliases second, with a blank line between the two groups:
+  ```elixir
+  alias Ecto.Changeset
+  alias Ecto.Multi
+
+  alias VetClinic.Appointments.Appointment
+  alias VetClinic.Repo
+  ```
 - Group aliases that share a parent module with curly braces:
   ```elixir
   alias VetClinic.Clinic.{Appointment, Owner, Pet}
