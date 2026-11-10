@@ -17,6 +17,8 @@ defmodule VetClinicWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  alias Phoenix.ConnTest
+
   using do
     quote do
       # The default endpoint for testing
@@ -27,12 +29,26 @@ defmodule VetClinicWeb.ConnCase do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
+      import VetClinic.Fixtures
       import VetClinicWeb.ConnCase
     end
   end
 
   setup tags do
     VetClinic.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    {:ok, conn: ConnTest.build_conn()}
+  end
+
+  @doc """
+  Posts a GraphQL document to `/api/graphql` and returns the decoded JSON
+  body, e.g. `%{"data" => %{"owner" => %{"name" => "Al"}}}`.
+  """
+  def graphql(conn, query, variables \\ %{}) do
+    conn
+    |> ConnTest.dispatch(VetClinicWeb.Endpoint, :post, "/api/graphql", %{
+      query: query,
+      variables: variables
+    })
+    |> ConnTest.json_response(200)
   end
 end
