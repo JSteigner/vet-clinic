@@ -69,7 +69,7 @@ defmodule VetClinic.VetsTest do
       appointment_fixture(%{vet_id: vet.id})
 
       assert {:error, changeset} = Vets.delete_vet(vet)
-      assert %{appointments: ["vet still has appointments"]} = errors_on(changeset)
+      assert %{appointments: ["still exist for this vet"]} = errors_on(changeset)
       assert Vets.get_vet(vet.id)
     end
   end

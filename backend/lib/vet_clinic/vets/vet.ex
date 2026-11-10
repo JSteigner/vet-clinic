@@ -52,6 +52,6 @@ defmodule VetClinic.Vets.Vet do
   def delete_changeset(vet) do
     vet
     |> change()
-    |> no_assoc_constraint(:appointments, message: "vet still has appointments")
+    |> no_assoc_constraint(:appointments, message: "still exist for this vet")
   end
 end
