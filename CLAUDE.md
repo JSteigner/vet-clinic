@@ -72,4 +72,5 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
 
 ## Don'ts
 - Don't modify existing migrations; create new ones.
+- Every migration must be reversible. Prefer `change/0` with reversible operations (use `modify ... from:` when altering columns); otherwise write explicit `up/0` and `down/0`. Verify with `mix ecto.migrate && mix ecto.rollback && mix ecto.migrate` before finishing. A migration that adds a NOT NULL column without a default can't re-run over existing rows, so check that kind on an empty database (`mix ecto.reset` in dev).
 - Ask before adding deps to `mix.exs`.
