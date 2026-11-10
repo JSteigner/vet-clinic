@@ -6,8 +6,11 @@ defmodule VetClinic.Appointments do
 
   import Ecto.Query, warn: false
 
+  alias Ecto.Multi
   alias VetClinic.Appointments.Appointment
   alias VetClinic.Repo
+
+  @open_statuses ~w[scheduled checked_in]a
 
   @doc """
   Every vet's appointments on the given date in the clinic's time zone,
@@ -59,10 +62,44 @@ defmodule VetClinic.Appointments do
     |> Repo.insert()
   end
 
+  @doc """
+  Reschedules an appointment or changes its reason or vet. The pet can't
+  be changed, and a new time must be in the future.
+  """
+  def update_appointment(%Appointment{} = appointment, attrs) do
+    appointment
+    |> Appointment.update_changeset(attrs)
+    |> Repo.update()
+  end
+
   def update_appointment_status(%Appointment{} = appointment, status) do
     appointment
     |> Appointment.status_changeset(%{status: status})
     |> Repo.update()
+  end
+
+  @doc """
+  Deletes an appointment booked by mistake. Prefer setting the status to
+  `:cancelled`, which keeps the visit in the pet's history.
+  """
+  def delete_appointment(%Appointment{} = appointment), do: Repo.delete(appointment)
+
+  @doc """
+  Adds a step to `multi` that cancels the open (scheduled or checked-in)
+  appointments of the pets selected by `pet_ids_query`. Completed and
+  already-cancelled appointments are left as they are.
+  """
+  def cancel_open_appointments(%Multi{} = multi, %Ecto.Query{} = pet_ids_query) do
+    now = DateTime.truncate(DateTime.utc_now(), :second)
+
+    query =
+      Appointment
+      |> where([a], a.pet_id in subquery(pet_ids_query))
+      |> where([a], a.status in ^@open_statuses)
+
+    Multi.update_all(multi, :cancelled_appointments, query,
+      set: [status: :cancelled, updated_at: now]
+    )
   end
 
   @doc """

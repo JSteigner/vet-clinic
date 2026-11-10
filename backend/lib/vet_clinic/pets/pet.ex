@@ -19,6 +19,7 @@ defmodule VetClinic.Pets.Pet do
     field :species, Ecto.Enum, values: @species
     field :breed, :string
     field :birth_date, :date
+    field :archived_at, :utc_datetime
 
     belongs_to :owner, VetClinic.Owners.Owner
     has_many :appointments, VetClinic.Appointments.Appointment
@@ -31,5 +32,10 @@ defmodule VetClinic.Pets.Pet do
     |> cast(attrs, @fields)
     |> validate_required(@required_fields)
     |> assoc_constraint(:owner)
+  end
+
+  @doc "Marks the pet as archived (soft-deleted)."
+  def archive_changeset(pet) do
+    change(pet, archived_at: DateTime.truncate(DateTime.utc_now(), :second))
   end
 end

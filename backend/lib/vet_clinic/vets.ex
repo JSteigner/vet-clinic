@@ -21,4 +21,20 @@ defmodule VetClinic.Vets do
     |> Vet.changeset(attrs)
     |> Repo.insert()
   end
+
+  def update_vet(%Vet{} = vet, attrs) do
+    vet
+    |> Vet.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a vet. Returns `{:error, changeset}` if the vet still has
+  appointments, since the database refuses to orphan them.
+  """
+  def delete_vet(%Vet{} = vet) do
+    vet
+    |> Vet.delete_changeset()
+    |> Repo.delete()
+  end
 end

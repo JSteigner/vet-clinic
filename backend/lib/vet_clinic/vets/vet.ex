@@ -28,4 +28,14 @@ defmodule VetClinic.Vets.Vet do
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must be a valid email")
     |> unique_constraint(:email)
   end
+
+  @doc """
+  Changeset for deleting a vet. Turns the database's refusal to delete a vet
+  who still has appointments into a changeset error.
+  """
+  def delete_changeset(vet) do
+    vet
+    |> change()
+    |> no_assoc_constraint(:appointments, message: "vet still has appointments")
+  end
 end

@@ -14,6 +14,8 @@ defmodule VetClinic.Appointments.Appointment do
   @optional_fields ~w[]a
   @fields @required_fields ++ @optional_fields
 
+  @updatable_fields ~w[starts_at reason vet_id]a
+
   @statuses ~w[scheduled checked_in completed cancelled]a
 
   schema "appointments" do
@@ -35,6 +37,19 @@ defmodule VetClinic.Appointments.Appointment do
     |> validate_length(:reason, max: 255)
     |> validate_future(:starts_at)
     |> assoc_constraint(:pet)
+    |> assoc_constraint(:vet)
+  end
+
+  @doc """
+  Changeset for rescheduling or changing the reason or vet. The pet can't
+  change, and a new time must be in the future.
+  """
+  def update_changeset(appointment, attrs) do
+    appointment
+    |> cast(attrs, @updatable_fields)
+    |> validate_required(@updatable_fields)
+    |> validate_length(:reason, max: 255)
+    |> validate_future(:starts_at)
     |> assoc_constraint(:vet)
   end
 
