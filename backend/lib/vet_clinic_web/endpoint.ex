@@ -4,6 +4,7 @@ defmodule VetClinicWeb.Endpoint do
   """
 
   use Phoenix.Endpoint, otp_app: :vet_clinic
+  use Absinthe.Phoenix.Endpoint
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
@@ -15,9 +16,7 @@ defmodule VetClinicWeb.Endpoint do
     same_site: "Lax"
   ]
 
-  # socket "/live", Phoenix.LiveView.Socket,
-  #   websocket: [connect_info: [session: @session_options]],
-  #   longpoll: [connect_info: [session: @session_options]]
+  socket "/socket", VetClinicWeb.UserSocket, websocket: true
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -49,5 +48,6 @@ defmodule VetClinicWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+  plug CORSPlug, origin: Application.compile_env(:vet_clinic, :cors_origins, [])
   plug VetClinicWeb.Router
 end

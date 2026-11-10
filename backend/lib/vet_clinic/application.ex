@@ -15,7 +15,9 @@ defmodule VetClinic.Application do
       # Start a worker by calling: VetClinic.Worker.start_link(arg)
       # {VetClinic.Worker, arg},
       # Start to serve requests, typically the last entry
-      VetClinicWeb.Endpoint
+      VetClinicWeb.Endpoint,
+      # Pushes subscription results; needs the endpoint running first.
+      {Absinthe.Subscription, VetClinicWeb.Endpoint}
     ]
 
     # See https://elixir.hexdocs.pm/Supervisor.html

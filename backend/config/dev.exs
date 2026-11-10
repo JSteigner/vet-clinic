@@ -52,8 +52,11 @@ config :vet_clinic, VetClinicWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
-# Enable dev routes for dashboard and mailbox
+# Enable dev routes (GraphiQL)
 config :vet_clinic, dev_routes: true
+
+# Let the Vite dev server call the API from the browser
+config :vet_clinic, :cors_origins, ["http://localhost:5173"]
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"
