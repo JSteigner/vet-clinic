@@ -8,7 +8,8 @@ Postgres 18 on port 5432 by default: a local install (Postgres.app here) or `doc
 ## Commands
 Run these from `backend/`:
 - Test: `mix test` (single test: `mix test test/path_test.exs:42`)
-- Before finishing any task: `mix precommit` (compile with warnings as errors, unlock unused deps, format, `credo --strict`, test)
+- Before finishing any task: `mix precommit` (compile with warnings as errors, unlock unused deps, format, `credo --strict`, then tests with a 90% minimum coverage via `mix coveralls`)
+- Coverage report: `mix coveralls.html` (writes `cover/excoveralls.html`)
 
 ## Architecture
 - Business logic lives in contexts under `lib/vet_clinic/`. Resolvers and controllers in `lib/vet_clinic_web/` stay thin.
@@ -16,6 +17,11 @@ Run these from `backend/`:
 - Never call Repo from the web layer.
 - GraphQL types go in `lib/vet_clinic_web/schema/`, resolvers in `lib/vet_clinic_web/resolvers/`. Load associations with Dataloader (`Clinic.datasource/0`), not per-row queries.
 - Subscriptions are triggered from mutations through Absinthe `trigger`. Don't publish manually from contexts.
+
+## Tests
+- Test files mirror `lib/` (e.g. `test/vet_clinic/pets/pets_test.exs`) and use `VetClinic.DataCase`.
+- Build data with the `VetClinic.Fixtures` helpers (imported by `DataCase`) and Faker (`Cat`, `Lorem`, `Person`, `Phone` are aliased in `DataCase`). Use literal values only when the exact value matters, e.g. names for ordering or an invalid email.
+- Use `past_appointment_fixture/1` for history (past times, any status); `appointment_fixture/1` books through the API, so it must be in the future.
 
 ## Conventions
 - Pattern-match in function heads; use `with` for ok/error chains.

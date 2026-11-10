@@ -20,12 +20,16 @@ defmodule VetClinic.DataCase do
 
   using do
     quote do
+      alias Faker.{Cat, Lorem, Person}
+      alias Faker.Phone.EnUs, as: Phone
+
       alias VetClinic.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import VetClinic.DataCase
+      import VetClinic.Fixtures
     end
   end
 

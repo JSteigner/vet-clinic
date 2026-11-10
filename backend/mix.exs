@@ -11,7 +11,8 @@ defmodule VetClinic.MixProject do
       aliases: aliases(),
       deps: deps(),
       listeners: [Phoenix.CodeReloader],
-      dialyzer: dialyzer()
+      dialyzer: dialyzer(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -41,7 +42,12 @@ defmodule VetClinic.MixProject do
 
   def cli do
     [
-      preferred_envs: [precommit: :test]
+      preferred_envs: [
+        precommit: :test,
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -70,7 +76,9 @@ defmodule VetClinic.MixProject do
       {:cors_plug, "~> 3.0"},
       {:tz, "~> 0.28"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.18", only: :test},
+      {:faker, "~> 0.18", only: :test}
     ]
   end
 
@@ -91,7 +99,9 @@ defmodule VetClinic.MixProject do
         "deps.unlock --unused",
         "format",
         "credo --strict",
-        "test"
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "coveralls"
       ]
     ]
   end

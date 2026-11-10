@@ -23,7 +23,7 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 | GraphQL | Absinthe 1.12, Absinthe.Phoenix (subscriptions over Phoenix Channels), Dataloader |
 | Database | PostgreSQL 18 via Ecto |
 | Frontend | React, TypeScript, Vite, Apollo Client |
-| Quality | ExUnit, Credo (strict), `mix format`, compile with warnings as errors |
+| Quality | ExUnit with Faker, ExCoveralls (90% minimum), Credo (strict), Dialyzer, `mix format`, compile with warnings as errors |
 
 ## Status
 
@@ -34,7 +34,8 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 - [x] Configurable clinic time zone (`CLINIC_TIME_ZONE`)
 - [x] Seed data
 - [ ] GraphQL schema: queries, mutations, `appointmentChanged` subscription
-- [ ] ExUnit tests for resolvers and subscriptions
+- [x] ExUnit tests for the domain layer (schemas, contexts, Clinic API)
+- [ ] ExUnit tests for GraphQL resolvers and subscriptions
 - [ ] React + Apollo frontend
 - [ ] Deployment
 
@@ -94,7 +95,8 @@ mix phx.server
 
 ```bash
 cd backend
-mix precommit   # compile with warnings as errors, format, credo --strict, test
+mix precommit         # compile with warnings as errors, format, credo --strict, tests + 90% coverage
+mix coveralls.html    # browsable coverage report in cover/excoveralls.html
 ```
 
 ## Project structure
