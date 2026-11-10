@@ -6,7 +6,9 @@ defmodule VetClinic.Appointments do
 
   import Ecto.Query, warn: false
 
+  alias Ecto.Changeset
   alias Ecto.Multi
+  alias Ecto.Query
   alias VetClinic.Appointments.Appointment
   alias VetClinic.Repo
 
@@ -16,6 +18,7 @@ defmodule VetClinic.Appointments do
   Every vet's appointments on the given date in the clinic's time zone,
   ordered by start time. This is the whole clinic's daily schedule.
   """
+  @spec list_daily_clinic_appointments(Date.t()) :: [Appointment.t()]
   def list_daily_clinic_appointments(%Date{} = date) do
     Appointment
     |> on_date(date)
@@ -30,6 +33,7 @@ defmodule VetClinic.Appointments do
 
     * `:date` - only appointments on that date in the clinic's time zone
   """
+  @spec list_vet_appointments(integer(), date: Date.t()) :: [Appointment.t()]
   def list_vet_appointments(vet_id, opts \\ []) do
     Appointment
     |> where([a], a.vet_id == ^vet_id)
@@ -46,6 +50,7 @@ defmodule VetClinic.Appointments do
     * `:status` - only appointments with that status, e.g. `:completed`
       for history or `:scheduled` for upcoming visits
   """
+  @spec list_pet_appointments(integer(), status: Appointment.status()) :: [Appointment.t()]
   def list_pet_appointments(pet_id, opts \\ []) do
     Appointment
     |> where([a], a.pet_id == ^pet_id)
@@ -54,8 +59,10 @@ defmodule VetClinic.Appointments do
     |> Repo.all()
   end
 
+  @spec get_appointment(integer()) :: Appointment.t() | nil
   def get_appointment(id), do: Repo.get(Appointment, id)
 
+  @spec create_appointment(map()) :: {:ok, Appointment.t()} | {:error, Changeset.t()}
   def create_appointment(attrs) do
     %Appointment{}
     |> Appointment.create_changeset(attrs)
@@ -66,12 +73,16 @@ defmodule VetClinic.Appointments do
   Reschedules an appointment or changes its reason or vet. The pet can't
   be changed, and a new time must be in the future.
   """
+  @spec update_appointment(Appointment.t(), map()) ::
+          {:ok, Appointment.t()} | {:error, Changeset.t()}
   def update_appointment(%Appointment{} = appointment, attrs) do
     appointment
     |> Appointment.update_changeset(attrs)
     |> Repo.update()
   end
 
+  @spec update_appointment_status(Appointment.t(), Appointment.status()) ::
+          {:ok, Appointment.t()} | {:error, Changeset.t()}
   def update_appointment_status(%Appointment{} = appointment, status) do
     appointment
     |> Appointment.status_changeset(%{status: status})
@@ -82,6 +93,7 @@ defmodule VetClinic.Appointments do
   Deletes an appointment booked by mistake. Prefer setting the status to
   `:cancelled`, which keeps the visit in the pet's history.
   """
+  @spec delete_appointment(Appointment.t()) :: {:ok, Appointment.t()} | {:error, Changeset.t()}
   def delete_appointment(%Appointment{} = appointment), do: Repo.delete(appointment)
 
   @doc """
@@ -89,7 +101,8 @@ defmodule VetClinic.Appointments do
   appointments of the pets selected by `pet_ids_query`. Completed and
   already-cancelled appointments are left as they are.
   """
-  def cancel_open_appointments(%Multi{} = multi, %Ecto.Query{} = pet_ids_query) do
+  @spec cancel_open_appointments(Multi.t(), Query.t()) :: Multi.t()
+  def cancel_open_appointments(multi, %Query{} = pet_ids_query) do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
     query =
@@ -105,12 +118,14 @@ defmodule VetClinic.Appointments do
   @doc """
   Today's date in the clinic's time zone.
   """
+  @spec today() :: Date.t()
   def today do
     clinic_time_zone()
     |> DateTime.now!()
     |> DateTime.to_date()
   end
 
+  @spec clinic_time_zone() :: Calendar.time_zone()
   def clinic_time_zone do
     Application.fetch_env!(:vet_clinic, :clinic_time_zone)
   end

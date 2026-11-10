@@ -7,12 +7,14 @@ defmodule VetClinic.Owners do
 
   import Ecto.Query, warn: false
 
+  alias Ecto.Changeset
   alias Ecto.Multi
   alias VetClinic.Appointments
   alias VetClinic.Owners.Owner
   alias VetClinic.Pets
   alias VetClinic.Repo
 
+  @spec list_owners() :: [Owner.t()]
   def list_owners do
     Owner
     |> active()
@@ -20,6 +22,7 @@ defmodule VetClinic.Owners do
     |> Repo.all()
   end
 
+  @spec get_owner(integer()) :: Owner.t() | nil
   def get_owner(id) do
     Owner
     |> active()
@@ -29,6 +32,7 @@ defmodule VetClinic.Owners do
   @doc """
   The owner of the given pet, or `nil` if the pet doesn't exist.
   """
+  @spec get_pet_owner(integer()) :: Owner.t() | nil
   def get_pet_owner(pet_id) do
     Owner
     |> join(:inner, [o], p in assoc(o, :pets))
@@ -36,12 +40,14 @@ defmodule VetClinic.Owners do
     |> Repo.one()
   end
 
+  @spec create_owner(map()) :: {:ok, Owner.t()} | {:error, Changeset.t()}
   def create_owner(attrs) do
     %Owner{}
     |> Owner.changeset(attrs)
     |> Repo.insert()
   end
 
+  @spec update_owner(Owner.t(), map()) :: {:ok, Owner.t()} | {:error, Changeset.t()}
   def update_owner(%Owner{} = owner, attrs) do
     owner
     |> Owner.changeset(attrs)
@@ -52,6 +58,7 @@ defmodule VetClinic.Owners do
   Archives an owner and all of their pets, and cancels those pets' open
   appointments, in one transaction. Completed appointments are kept.
   """
+  @spec delete_owner(Owner.t()) :: {:ok, Owner.t()} | {:error, Changeset.t()}
   def delete_owner(%Owner{} = owner) do
     Multi.new()
     |> Appointments.cancel_open_appointments(Pets.owner_pet_ids_query(owner.id))

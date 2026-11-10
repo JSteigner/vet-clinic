@@ -8,11 +8,13 @@ defmodule VetClinic.Pets do
 
   import Ecto.Query, warn: false
 
+  alias Ecto.Changeset
   alias Ecto.Multi
   alias VetClinic.Appointments
   alias VetClinic.Pets.Pet
   alias VetClinic.Repo
 
+  @spec get_pet(integer()) :: Pet.t() | nil
   def get_pet(id) do
     Pet
     |> active()
@@ -22,6 +24,7 @@ defmodule VetClinic.Pets do
   @doc """
   All of an owner's active pets, ordered by name.
   """
+  @spec list_owner_pets(integer()) :: [Pet.t()]
   def list_owner_pets(owner_id) do
     Pet
     |> active()
@@ -30,12 +33,14 @@ defmodule VetClinic.Pets do
     |> Repo.all()
   end
 
+  @spec create_pet(map()) :: {:ok, Pet.t()} | {:error, Changeset.t()}
   def create_pet(attrs) do
     %Pet{}
     |> Pet.changeset(attrs)
     |> Repo.insert()
   end
 
+  @spec update_pet(Pet.t(), map()) :: {:ok, Pet.t()} | {:error, Changeset.t()}
   def update_pet(%Pet{} = pet, attrs) do
     pet
     |> Pet.changeset(attrs)
@@ -46,6 +51,7 @@ defmodule VetClinic.Pets do
   Archives a pet and cancels its open (scheduled or checked-in)
   appointments, in one transaction. Completed appointments are kept.
   """
+  @spec delete_pet(Pet.t()) :: {:ok, Pet.t()} | {:error, Changeset.t()}
   def delete_pet(%Pet{} = pet) do
     pet_ids =
       Pet
@@ -65,7 +71,8 @@ defmodule VetClinic.Pets do
   @doc """
   Adds a step to `multi` that archives all of an owner's active pets.
   """
-  def archive_owner_pets(%Multi{} = multi, owner_id) do
+  @spec archive_owner_pets(Multi.t(), integer()) :: Multi.t()
+  def archive_owner_pets(multi, owner_id) do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
     query =
@@ -79,6 +86,7 @@ defmodule VetClinic.Pets do
   @doc """
   A query selecting the IDs of all of an owner's pets, for use as a subquery.
   """
+  @spec owner_pet_ids_query(integer()) :: Ecto.Query.t()
   def owner_pet_ids_query(owner_id) do
     Pet
     |> where([p], p.owner_id == ^owner_id)

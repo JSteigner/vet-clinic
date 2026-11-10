@@ -21,6 +21,8 @@ Run these from `backend/`:
 - Pattern-match in function heads; use `with` for ok/error chains.
 - All writes go through changesets; use Ecto.Multi for multi-step writes.
 - Resolvers return `{:ok, result}` or `{:error, reason}`. Turn changeset errors into GraphQL errors; never raise.
+- Every public function has a `@spec` (including `defdelegate`s in `Clinic`), and every schema defines `@type t`. Enum fields get their own type, e.g. `Appointment.status()`.
+- Domain functions take `integer()` IDs. GraphQL IDs arrive as strings, so resolvers parse them first and turn a non-numeric ID into a "not found" error.
 
 ## Elixir style
 
@@ -64,6 +66,13 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
     field :species, Ecto.Enum, values: @species
   ```
   Then use `cast(attrs, @fields)` and `validate_required(@required_fields)` in the changeset.
+- If a module name is written out in full more than once in a file, alias it and use the short name everywhere, including in typespecs. A module used only once stays fully qualified.
+  ```elixir
+  alias VetClinic.Appointments.Appointment
+
+  has_many :appointments, Appointment
+  appointments: [Appointment.t()] | Ecto.Association.NotLoaded.t()
+  ```
 - Group aliases that share a parent module with curly braces:
   ```elixir
   alias VetClinic.Clinic.{Appointment, Owner, Pet}
