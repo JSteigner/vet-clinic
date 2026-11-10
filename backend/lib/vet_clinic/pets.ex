@@ -58,6 +58,8 @@ defmodule VetClinic.Pets do
       |> where([p], p.id == ^pet.id)
       |> select([p], p.id)
 
+    # Dialyzer flags this pipeline (call_without_opaque) because of an
+    # Ecto.Multi.new/0 + OTP 29 false positive; see .dialyzer_ignore.exs.
     Multi.new()
     |> Appointments.cancel_open_appointments(pet_ids)
     |> Multi.update(:pet, Pet.archive_changeset(pet))

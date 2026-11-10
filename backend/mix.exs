@@ -21,7 +21,11 @@ defmodule VetClinic.MixProject do
       plt_local_path: "priv/plts",
       plt_core_path: "priv/plts",
       plt_add_apps: [:mix, :ex_unit],
-      flags: [:unmatched_returns, :error_handling]
+      flags: [:unmatched_returns, :error_handling],
+      # Known false positives (an Ecto.Multi + OTP 29 opaque-type issue);
+      # each entry in the file explains why it's there.
+      ignore_warnings: ".dialyzer_ignore.exs",
+      list_unused_filters: true
     ]
   end
 

@@ -60,6 +60,8 @@ defmodule VetClinic.Owners do
   """
   @spec delete_owner(Owner.t()) :: {:ok, Owner.t()} | {:error, Changeset.t()}
   def delete_owner(%Owner{} = owner) do
+    # Dialyzer flags this pipeline (call_without_opaque) because of an
+    # Ecto.Multi.new/0 + OTP 29 false positive; see .dialyzer_ignore.exs.
     Multi.new()
     |> Appointments.cancel_open_appointments(Pets.owner_pet_ids_query(owner.id))
     |> Pets.archive_owner_pets(owner.id)
