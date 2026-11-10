@@ -7,7 +7,7 @@ defmodule VetClinic.Clinic do
 
   alias Ecto.Changeset
 
-  alias VetClinic.{Appointments, Owners, Pets, Repo, Vets}
+  alias VetClinic.{Appointments, Errors, Owners, Pets, Repo, Vets}
   alias VetClinic.Appointments.Appointment
   alias VetClinic.Owners.Owner
   alias VetClinic.Pets.Pet
@@ -20,6 +20,11 @@ defmodule VetClinic.Clinic do
   def datasource do
     Dataloader.Ecto.new(Repo)
   end
+
+  ## Errors
+
+  @spec validation_errors(term()) :: {:error, Errors.messages()} | :ignore
+  defdelegate validation_errors(error), to: Errors
 
   ## Owners
 

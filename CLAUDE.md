@@ -14,7 +14,7 @@ Run these from `backend/`:
 ## Architecture
 - Business logic lives in contexts under `lib/vet_clinic/`. Resolvers and controllers in `lib/vet_clinic_web/` stay thin.
 - `VetClinic.Clinic` is the public API. It delegates to the per-schema contexts (`Owners`, `Pets`, `Vets`, `Appointments`). The web layer and scripts call `Clinic`, never a context directly. A function lives in the context of the schema it returns.
-- Never call Repo from the web layer.
+- Never use Ecto (Repo, changesets, queries) in the web layer. Go through `Clinic`; e.g. `Clinic.validation_errors/1` turns a changeset into plain `%{field => [message]}` data.
 - GraphQL types go in `lib/vet_clinic_web/schema/`, resolvers in `lib/vet_clinic_web/resolvers/`. Load associations with Dataloader (`Clinic.datasource/0`), not per-row queries.
 - Subscriptions are triggered from mutations through Absinthe `trigger`. Don't publish manually from contexts.
 
