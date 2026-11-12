@@ -24,7 +24,8 @@ defmodule VetClinicWeb.Router do
     scope "/api" do
       forward "/graphiql", Absinthe.Plug.GraphiQL,
         schema: Schema,
-        socket: VetClinicWeb.UserSocket
+        socket: VetClinicWeb.UserSocket,
+        interface: :simple
     end
   end
 end
