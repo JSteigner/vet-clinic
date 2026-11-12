@@ -143,7 +143,7 @@ Browser origins allowed to call the API (CORS) are set with `config :vet_clinic,
 
 ```bash
 cd backend
-mix precommit         # compile with warnings as errors, format, credo --strict, tests + 90% coverage, dialyzer
+mix precommit         # compile with warnings as errors, format, credo --strict, dialyzer, tests + 90% coverage
 mix coveralls.html    # browsable coverage report in cover/excoveralls.html
 ```
 

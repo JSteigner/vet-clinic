@@ -99,10 +99,12 @@ defmodule VetClinic.MixProject do
         "deps.unlock --unused",
         "format",
         "credo --strict",
+        "dialyzer",
         "ecto.create --quiet",
         "ecto.migrate --quiet",
-        "coveralls",
-        "dialyzer"
+        # Last: a failing test doesn't stop the alias (mix test only sets the
+        # exit code at shutdown), so its result must be the final output.
+        "coveralls"
       ]
     ]
   end

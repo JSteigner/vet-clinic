@@ -13,8 +13,14 @@ defmodule VetClinicWeb.Schema do
   alias VetClinic.Clinic
   alias VetClinicWeb.Schema.Middleware.ChangesetErrors
 
+  # One import_types per module: with the {A, B} form, Absinthe builds the
+  # module names itself, so Elixir doesn't record them as dependencies and
+  # changing a type module leaves this schema stale.
   import_types Absinthe.Type.Custom
-  import_types VetClinicWeb.Schema.{AppointmentTypes, OwnerTypes, PetTypes, VetTypes}
+  import_types VetClinicWeb.Schema.AppointmentTypes
+  import_types VetClinicWeb.Schema.OwnerTypes
+  import_types VetClinicWeb.Schema.PetTypes
+  import_types VetClinicWeb.Schema.VetTypes
 
   query do
     import_fields :owner_queries

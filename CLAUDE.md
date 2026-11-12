@@ -8,7 +8,7 @@ Postgres 18 on port 5432 by default: a local install (Postgres.app here) or `doc
 ## Commands
 Run these from `backend/`:
 - Test: `mix test` (single test: `mix test test/path_test.exs:42`)
-- Before finishing any task: `mix precommit` (compile with warnings as errors, unlock unused deps, format, `credo --strict`, tests with a 90% minimum coverage via `mix coveralls`, then `dialyzer`)
+- Before finishing any task: `mix precommit` (compile with warnings as errors, unlock unused deps, format, `credo --strict`, `dialyzer`, then tests with a 90% minimum coverage via `mix coveralls`). Check its exit code (`mix precommit; echo $?`), not just the last lines: a failing test doesn't stop the run.
 - Coverage report: `mix coveralls.html` (writes `cover/excoveralls.html`)
 
 ## Architecture
@@ -92,6 +92,7 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
   alias VetClinic.Clinic.{Appointment, Owner, Pet}
   alias VetClinic.Repo
   ```
+- Exception: never use curly braces with Absinthe's `import_types`. Write one `import_types` per module. With the `{A, B}` form, Elixir doesn't record the type modules as compile-time dependencies of the schema, so changing a type module leaves a stale compiled schema (fields missing at runtime).
 
 ## Frontend (`frontend/`)
 React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, Apollo Client. Run these from `frontend/`:
