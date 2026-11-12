@@ -1,0 +1,7 @@
+dist
+coverage
+package-lock.json
+src/gql
+schema.graphql
+playwright-report
+test-results

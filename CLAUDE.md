@@ -93,7 +93,20 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
   alias VetClinic.Repo
   ```
 
+## Frontend (`frontend/`)
+React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, Apollo Client. Run these from `frontend/`:
+- Dev server: `npm run dev` (http://localhost:5173; expects the API on http://localhost:4000)
+- Test: `npm test` (watch mode) or `npx vitest run src/path.test.tsx`
+- Before finishing any frontend task: `npm run check` (`tsc -b`, `oxlint --deny-warnings`, `prettier --check`, then `vitest run --coverage`)
+- Format: `npm run format`
+
+Conventions:
+- Code lives in `src/features/<area>/` (pages, components, `queries.ts`, tests beside them); shared UI in `src/components/`, helpers in `src/lib/`.
+- Style with Tailwind classes. No CSS files besides `src/index.css`.
+- Test components with Testing Library, querying by role and label text, not class names or test IDs.
+- Prettier formats the code (no semicolons, single quotes, sorted Tailwind classes); don't hand-format.
+
 ## Don'ts
 - Don't modify existing migrations; create new ones.
 - Every migration must be reversible. Prefer `change/0` with reversible operations (use `modify ... from:` when altering columns); otherwise write explicit `up/0` and `down/0`. Verify with `mix ecto.migrate && mix ecto.rollback && mix ecto.migrate` before finishing. A migration that adds a NOT NULL column without a default can't re-run over existing rows, so check that kind on an empty database (`mix ecto.reset` in dev).
-- Ask before adding deps to `mix.exs`.
+- Ask before adding deps to `mix.exs` or `frontend/package.json`.
