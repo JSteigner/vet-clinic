@@ -1,4 +1,4 @@
-import type { CodegenConfig } from '@graphql-codegen/cli'
+import type { CodegenConfig } from '@graphql-codegen/cli';
 
 // Types come from schema.graphql, exported from the backend with `npm run schema`,
 // so codegen and type checks don't need a running API.
@@ -25,6 +25,6 @@ const config: CodegenConfig = {
       },
     },
   },
-}
+};
 
-export default config
+export default config;

@@ -1,10 +1,10 @@
-import { Route, Routes } from 'react-router'
+import { Route, Routes } from 'react-router';
 
-import Layout from './components/Layout'
-import NotFound from './components/NotFound'
-import OwnersPage from './features/owners/OwnersPage'
-import SchedulePage from './features/schedule/SchedulePage'
-import VetsPage from './features/vets/VetsPage'
+import Layout from './components/Layout';
+import NotFound from './components/NotFound';
+import OwnersPage from './features/owners/OwnersPage';
+import SchedulePage from './features/schedule/SchedulePage';
+import VetsPage from './features/vets/VetsPage';
 
 const App = () => (
   <Routes>
@@ -15,6 +15,6 @@ const App = () => (
       <Route path="*" element={<NotFound />} />
     </Route>
   </Routes>
-)
+);
 
-export default App
+export default App;

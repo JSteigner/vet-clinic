@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link } from 'react-router';
 
 const NotFound = ({ what = 'Page' }: { what?: string }) => (
   <div className="py-16 text-center">
@@ -7,6 +7,6 @@ const NotFound = ({ what = 'Page' }: { what?: string }) => (
       Back to the schedule
     </Link>
   </div>
-)
+);
 
-export default NotFound
+export default NotFound;

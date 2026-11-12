@@ -104,11 +104,12 @@ React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, Apollo Client. Run thes
 
 Conventions:
 - Code lives in `src/features/<area>/` (pages, components, `queries.ts`, tests beside them); shared UI in `src/components/`, helpers in `src/lib/`.
+- Name GraphQL document constants in SCREAMING_CASE (`DAILY_SCHEDULE`), so they never clash with the generated PascalCase result types (`DailyScheduleQuery`).
 - Write GraphQL documents with the generated `graphql()` from `src/gql` and let hooks infer their types. Never hand-write types for API data or pass generics like `useQuery<T>()`. Don't edit `src/gql/`; it's generated.
 - Use arrow functions for components and helpers, not `function` declarations: `const Layout = () => (...)` with `export default Layout` at the bottom, and `export const formatInZone = (...) => ...` for named exports.
 - Style with Tailwind classes. No CSS files besides `src/index.css`.
 - Test components with Testing Library, querying by role and label text, not class names or test IDs.
-- Prettier formats the code (no semicolons, single quotes, sorted Tailwind classes); don't hand-format.
+- Prettier formats the code (semicolons, single quotes, sorted Tailwind classes); don't hand-format.
 
 ## Don'ts
 - Don't modify existing migrations; create new ones.

@@ -1,11 +1,11 @@
-import { ApolloLink } from '@apollo/client'
-import { print } from 'graphql'
-import type { Channel, Socket } from 'phoenix'
-import { Observable } from 'rxjs'
+import { ApolloLink } from '@apollo/client';
+import { print } from 'graphql';
+import type { Channel, Socket } from 'phoenix';
+import { Observable } from 'rxjs';
 
-type DocReply = { subscriptionId: string }
+type DocReply = { subscriptionId: string };
 // @types/phoenix types socket messages as a bare `object`.
-type SocketMessage = { topic: string; event: string; payload: { result: ApolloLink.Result } }
+type SocketMessage = { topic: string; event: string; payload: { result: ApolloLink.Result } };
 
 /**
  * An Apollo link for GraphQL subscriptions over Absinthe's Phoenix channel
@@ -14,55 +14,55 @@ type SocketMessage = { topic: string; event: string; payload: { result: ApolloLi
  * the returned subscription ID.
  */
 export const createAbsintheLink = (socket: Socket): ApolloLink => {
-  let control: Channel | null = null
+  let control: Channel | null = null;
 
   // Connect lazily, so pages without subscriptions never open the socket.
   const controlChannel = (): Channel => {
     if (!control) {
-      socket.connect()
-      control = socket.channel('__absinthe__:control')
-      control.join()
+      socket.connect();
+      control = socket.channel('__absinthe__:control');
+      control.join();
     }
 
-    return control
-  }
+    return control;
+  };
 
   return new ApolloLink(
     (operation) =>
       new Observable<ApolloLink.Result>((observer) => {
-        const channel = controlChannel()
-        let subscriptionId: string | null = null
-        let messageRef: string | null = null
-        let closed = false
+        const channel = controlChannel();
+        let subscriptionId: string | null = null;
+        let messageRef: string | null = null;
+        let closed = false;
 
         channel
           .push('doc', { query: print(operation.query), variables: operation.variables })
           .receive('ok', (reply: DocReply) => {
             // Unsubscribed before the server replied: stop it right away.
             if (closed) {
-              channel.push('unsubscribe', { subscriptionId: reply.subscriptionId })
-              return
+              channel.push('unsubscribe', { subscriptionId: reply.subscriptionId });
+              return;
             }
 
-            subscriptionId = reply.subscriptionId
+            subscriptionId = reply.subscriptionId;
             messageRef = socket.onMessage((message) => {
-              const { topic, event, payload } = message as SocketMessage
+              const { topic, event, payload } = message as SocketMessage;
 
               if (topic === subscriptionId && event === 'subscription:data') {
-                observer.next(payload.result)
+                observer.next(payload.result);
               }
-            })
+            });
           })
           .receive('error', (reply: unknown) => {
-            observer.error(new Error(`Subscription failed: ${JSON.stringify(reply)}`))
-          })
+            observer.error(new Error(`Subscription failed: ${JSON.stringify(reply)}`));
+          });
 
         return () => {
-          closed = true
+          closed = true;
 
-          if (subscriptionId) channel.push('unsubscribe', { subscriptionId })
-          if (messageRef) socket.off([messageRef])
-        }
+          if (subscriptionId) channel.push('unsubscribe', { subscriptionId });
+          if (messageRef) socket.off([messageRef]);
+        };
       }),
-  )
-}
+  );
+};
