@@ -10,6 +10,11 @@ defmodule VetClinicWeb.Resolvers.Appointments do
   alias VetClinic.Clinic
   alias VetClinicWeb.Resolvers.Helpers
 
+  @spec clinic_time_zone(term(), map(), Resolution.t()) :: Helpers.result(String.t())
+  def clinic_time_zone(_parent, _args, _resolution) do
+    {:ok, Clinic.clinic_time_zone()}
+  end
+
   @spec list_daily_clinic_appointments(term(), map(), Resolution.t()) ::
           Helpers.result([Appointment.t()])
   def list_daily_clinic_appointments(_parent, args, _resolution) do

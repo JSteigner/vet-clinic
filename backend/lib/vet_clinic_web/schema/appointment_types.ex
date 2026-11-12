@@ -43,6 +43,14 @@ defmodule VetClinicWeb.Schema.AppointmentTypes do
 
   object :appointment_queries do
     @desc """
+    The clinic's IANA time zone, e.g. "America/Chicago". Dates in
+    appointment queries are days in this zone.
+    """
+    field :clinic_time_zone, non_null(:string) do
+      resolve &Appointments.clinic_time_zone/3
+    end
+
+    @desc """
     The whole clinic's schedule for a date in the clinic's time zone,
     ordered by start time. Defaults to today.
     """

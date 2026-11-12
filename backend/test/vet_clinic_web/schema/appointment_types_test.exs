@@ -3,6 +3,13 @@ defmodule VetClinicWeb.Schema.AppointmentTypesTest do
 
   alias VetClinic.Clinic
 
+  describe "clinicTimeZone query" do
+    test "returns the configured zone", %{conn: conn} do
+      assert %{"data" => %{"clinicTimeZone" => zone}} = graphql(conn, "{ clinicTimeZone }")
+      assert zone == Clinic.clinic_time_zone()
+    end
+  end
+
   describe "appointments query" do
     @query "query ($date: Date) { appointments(date: $date) { id pet { id } vet { id } } }"
 
