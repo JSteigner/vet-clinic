@@ -1,0 +1,221 @@
+schema {
+  subscription: RootSubscriptionType
+  mutation: RootMutationType
+  query: RootQueryType
+}
+
+type RootQueryType {
+  "Active owners, ordered by name."
+  owners: [Owner!]!
+
+  "An active owner by ID."
+  owner(id: ID!): Owner
+
+  "The owner of a pet."
+  petOwner(petId: ID!): Owner
+
+  "An active pet by ID."
+  pet(id: ID!): Pet
+
+  "An owner's active pets, ordered by name."
+  ownerPets(ownerId: ID!): [Pet!]!
+
+  "All vets, ordered by name."
+  vets: [Vet!]!
+
+  "A vet by ID."
+  vet(id: ID!): Vet
+
+  """
+  The clinic's IANA time zone, e.g. "America/Chicago". Dates in
+  appointment queries are days in this zone.
+  """
+  clinicTimeZone: String!
+
+  """
+  The whole clinic's schedule for a date in the clinic's time zone,
+  ordered by start time. Defaults to today.
+  """
+  appointments(date: Date): [Appointment!]!
+
+  "An appointment by ID."
+  appointment(id: ID!): Appointment
+
+  "A vet's appointments, ordered by start time, optionally for one date."
+  vetAppointments(vetId: ID!, date: Date): [Appointment!]!
+
+  """
+  A pet's appointments, ordered by start time. Filter by status, e.g.
+  COMPLETED for history or SCHEDULED for upcoming visits.
+  """
+  petAppointments(petId: ID!, status: AppointmentStatus): [Appointment!]!
+}
+
+type RootMutationType {
+  createOwner(input: CreateOwnerInput!): Owner
+
+  updateOwner(id: ID!, input: UpdateOwnerInput!): Owner
+
+  "Archives the owner and their pets, and cancels open appointments."
+  deleteOwner(id: ID!): Owner
+
+  createPet(input: CreatePetInput!): Pet
+
+  updatePet(id: ID!, input: UpdatePetInput!): Pet
+
+  "Archives the pet and cancels its open appointments."
+  deletePet(id: ID!): Pet
+
+  createVet(input: CreateVetInput!): Vet
+
+  updateVet(id: ID!, input: UpdateVetInput!): Vet
+
+  "Deletes a vet. Fails while the vet still has appointments."
+  deleteVet(id: ID!): Vet
+
+  "Book an appointment for a pet with a vet. Must be in the future."
+  createAppointment(input: CreateAppointmentInput!): Appointment
+
+  updateAppointment(id: ID!, input: UpdateAppointmentInput!): Appointment
+
+  updateAppointmentStatus(id: ID!, status: AppointmentStatus!): Appointment
+
+  "Deletes an appointment booked by mistake. Prefer cancelling it."
+  deleteAppointment(id: ID!): Appointment
+}
+
+type RootSubscriptionType {
+  "Fires when an appointment is booked, rescheduled or changes status."
+  appointmentChanged: Appointment!
+}
+
+type Vet {
+  id: ID!
+  name: String!
+  email: String!
+  appointments: [Appointment!]!
+}
+
+input CreateVetInput {
+  name: String!
+  email: String!
+}
+
+input UpdateVetInput {
+  name: String
+  email: String
+}
+
+enum Species {
+  DOG
+  CAT
+  BIRD
+  RABBIT
+  OTHER
+}
+
+type Pet {
+  id: ID!
+
+  name: String!
+
+  species: Species!
+
+  breed: String
+
+  birthDate: Date
+
+  "When the pet was archived (soft-deleted), or null while active."
+  archivedAt: DateTime
+
+  owner: Owner!
+
+  appointments: [Appointment!]!
+}
+
+input CreatePetInput {
+  ownerId: ID!
+  name: String!
+  species: Species!
+  breed: String
+  birthDate: Date
+}
+
+input UpdatePetInput {
+  name: String
+  species: Species
+  breed: String
+  birthDate: Date
+}
+
+type Owner {
+  id: ID!
+
+  name: String!
+
+  email: String!
+
+  phone: String
+
+  "When the owner was archived (soft-deleted), or null while active."
+  archivedAt: DateTime
+
+  "All of the owner's pets, including archived ones (check archivedAt)."
+  pets: [Pet!]!
+}
+
+input CreateOwnerInput {
+  name: String!
+  email: String!
+  phone: String
+}
+
+input UpdateOwnerInput {
+  name: String
+  email: String
+  phone: String
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CHECKED_IN
+  COMPLETED
+  CANCELLED
+}
+
+type Appointment {
+  id: ID!
+  startsAt: DateTime!
+  reason: String!
+  status: AppointmentStatus!
+  pet: Pet!
+  vet: Vet!
+}
+
+input CreateAppointmentInput {
+  petId: ID!
+  vetId: ID!
+  startsAt: DateTime!
+  reason: String!
+}
+
+"Reschedule, or change the reason or vet. The pet can't be changed."
+input UpdateAppointmentInput {
+  startsAt: DateTime
+  reason: String
+  vetId: ID
+}
+
+"""
+The `DateTime` scalar type represents a date and time in the UTC
+timezone. The DateTime appears in a JSON response as an ISO8601 formatted
+string, including UTC timezone ("Z"). The parsed date and time string will
+be converted to UTC if there is an offset.
+"""
+scalar DateTime
+
+"""
+The `Date` scalar type represents a date. The Date appears in a JSON
+response as an ISO8601 formatted string, without a time component.
+"""
+scalar Date

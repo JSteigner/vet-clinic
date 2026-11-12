@@ -98,11 +98,14 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
 React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, Apollo Client. Run these from `frontend/`:
 - Dev server: `npm run dev` (http://localhost:5173; expects the API on http://localhost:4000)
 - Test: `npm test` (watch mode) or `npx vitest run src/path.test.tsx`
-- Before finishing any frontend task: `npm run check` (`tsc -b`, `oxlint --deny-warnings`, `prettier --check`, then `vitest run --coverage`)
+- Before finishing any frontend task: `npm run check` (`graphql-codegen --check`, `tsc -b`, `oxlint --deny-warnings`, `prettier --check`, then `vitest run --coverage`)
 - Format: `npm run format`
+- After any GraphQL API change: `npm run schema` (re-exports `schema.graphql` from the backend), then `npm run codegen` (regenerates `src/gql/`)
 
 Conventions:
 - Code lives in `src/features/<area>/` (pages, components, `queries.ts`, tests beside them); shared UI in `src/components/`, helpers in `src/lib/`.
+- Write GraphQL documents with the generated `graphql()` from `src/gql` and let hooks infer their types. Never hand-write types for API data or pass generics like `useQuery<T>()`. Don't edit `src/gql/`; it's generated.
+- Use arrow functions for components and helpers, not `function` declarations: `const Layout = () => (...)` with `export default Layout` at the bottom, and `export const formatInZone = (...) => ...` for named exports.
 - Style with Tailwind classes. No CSS files besides `src/index.css`.
 - Test components with Testing Library, querying by role and label text, not class names or test IDs.
 - Prettier formats the code (no semicolons, single quotes, sorted Tailwind classes); don't hand-format.

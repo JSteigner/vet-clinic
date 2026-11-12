@@ -1,7 +1,20 @@
-export default function App() {
-  return (
-    <main className="mx-auto max-w-5xl p-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Vet Clinic</h1>
-    </main>
-  )
-}
+import { Route, Routes } from 'react-router'
+
+import Layout from './components/Layout'
+import NotFound from './components/NotFound'
+import OwnersPage from './features/owners/OwnersPage'
+import SchedulePage from './features/schedule/SchedulePage'
+import VetsPage from './features/vets/VetsPage'
+
+const App = () => (
+  <Routes>
+    <Route element={<Layout />}>
+      <Route index element={<SchedulePage />} />
+      <Route path="owners" element={<OwnersPage />} />
+      <Route path="vets" element={<VetsPage />} />
+      <Route path="*" element={<NotFound />} />
+    </Route>
+  </Routes>
+)
+
+export default App

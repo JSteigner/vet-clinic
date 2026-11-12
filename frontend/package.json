@@ -9,19 +9,31 @@
     "lint": "oxlint",
     "format": "prettier --write .",
     "test": "vitest",
-    "check": "tsc -b && oxlint --deny-warnings && prettier --check . && vitest run --coverage",
+    "schema": "cd ../backend && mix absinthe.schema.sdl --schema VetClinicWeb.Schema ../frontend/schema.graphql",
+    "codegen": "graphql-codegen",
+    "check": "graphql-codegen --check && tsc -b && oxlint --deny-warnings && prettier --check . && vitest run --coverage",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@apollo/client": "^4.3.8",
+    "@date-fns/tz": "^1.5.0",
+    "date-fns": "^4.4.0",
+    "graphql": "^16.15.0",
+    "phoenix": "^1.8.16",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "react-router": "^7.18.5",
+    "rxjs": "^7.8.2"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^8.0.0",
+    "@graphql-codegen/client-preset": "^7.0.0",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.9",
     "@types/node": "^24.19.2",
+    "@types/phoenix": "^1.6.8",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
