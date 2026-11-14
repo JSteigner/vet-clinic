@@ -40,7 +40,11 @@ const AppointmentRow = ({ appointment, timeZone, busy, onStatusChange }: Props) 
           {` · ${reason}`}
         </p>
       </div>
-      <p className="hidden truncate text-sm text-slate-600 sm:block">{vet.name}</p>
+      <p className="hidden truncate text-sm text-slate-600 sm:block">
+        <Link to={`/vets/${vet.id}`} className="hover:underline">
+          {vet.name}
+        </Link>
+      </p>
       <div className="col-start-2 flex flex-wrap items-center gap-2 sm:col-start-auto sm:justify-end">
         <StatusBadge status={status} />
         <StatusActions status={status} busy={busy} onChange={onStatusChange} />

@@ -79,7 +79,11 @@ const AppointmentPage = () => {
           </Link>
         </dd>
         <dt className="text-slate-500">Vet</dt>
-        <dd>{vet.name}</dd>
+        <dd>
+          <Link to={`/vets/${vet.id}`} className="text-teal-700 hover:underline">
+            {vet.name}
+          </Link>
+        </dd>
         <dt className="text-slate-500">Reason</dt>
         <dd>{reason}</dd>
       </dl>
