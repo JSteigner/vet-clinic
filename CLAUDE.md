@@ -106,6 +106,16 @@ Conventions:
 - Code lives in `src/features/<area>/` (pages, components, `queries.ts`, tests beside them); shared UI in `src/components/`, helpers in `src/lib/`.
 - Name GraphQL document constants in SCREAMING_CASE (`DAILY_SCHEDULE`), so they never clash with the generated PascalCase result types (`DailyScheduleQuery`).
 - Write GraphQL documents with the generated `graphql()` from `src/gql` and let hooks infer their types. Never hand-write types for API data or pass generics like `useQuery<T>()`. Don't edit `src/gql/`; it's generated.
+
+Apollo Client:
+- Server data comes from Apollo only. Read `data` and derive from it; don't copy query results into `useState` (except to seed a form's draft values).
+- No `useEffect` for fetching; use `useQuery` / `useLazyQuery` / `useSubscription`.
+- Always select `id` on object types so the normalized cache works. Use `typePolicies` for types without `id` or for merging paginated lists instead of working around the cache.
+- Mutations return the changed object so the cache updates itself. After creates/deletes, update plain lists with `cache.modify` or `update`; refetch lists the server filters (e.g. `appointments(date:)`), since the client can't tell which ones the change belongs to.
+- Every component that queries handles `loading`, `error`, and empty states.
+- Colocate each component's data needs as a fragment in its feature's `queries.ts`; parent queries spread child fragments. Name fragments `ComponentName_prop` (e.g. `AppointmentRow_appointment`) and type the prop with the generated fragment type (`AppointmentRow_AppointmentFragment`).
+
+Code style:
 - Use arrow functions for components and helpers, not `function` declarations: `const Layout = () => (...)` with `export default Layout` at the bottom, and `export const formatInZone = (...) => ...` for named exports.
 - Style with Tailwind classes. No CSS files besides `src/index.css`.
 - Test components with Testing Library, querying by role and label text, not class names or test IDs.

@@ -1,25 +1,33 @@
 import { graphql } from '../../gql';
 
+// What AppointmentRow shows; DAILY_SCHEDULE spreads it.
+export const APPOINTMENT_ROW_FRAGMENT = graphql(`
+  fragment AppointmentRow_appointment on Appointment {
+    id
+    startsAt
+    reason
+    status
+    pet {
+      id
+      name
+      species
+      owner {
+        id
+        name
+      }
+    }
+    vet {
+      id
+      name
+    }
+  }
+`);
+
 export const DAILY_SCHEDULE = graphql(`
   query DailySchedule($date: Date) {
     appointments(date: $date) {
       id
-      startsAt
-      reason
-      status
-      pet {
-        id
-        name
-        species
-        owner {
-          id
-          name
-        }
-      }
-      vet {
-        id
-        name
-      }
+      ...AppointmentRow_appointment
     }
   }
 `);

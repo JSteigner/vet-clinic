@@ -1,10 +1,10 @@
 import ConfirmButton from '../../components/ConfirmButton';
 import StatusBadge from '../../components/StatusBadge';
-import type { AppointmentStatus, DailyScheduleQuery } from '../../gql/graphql';
+import type { AppointmentRow_AppointmentFragment, AppointmentStatus } from '../../gql/graphql';
 import { formatInZone } from '../../lib/time';
 
 type Props = {
-  appointment: DailyScheduleQuery['appointments'][number];
+  appointment: AppointmentRow_AppointmentFragment;
   timeZone: string;
   busy: boolean;
   onStatusChange: (status: AppointmentStatus) => void;
