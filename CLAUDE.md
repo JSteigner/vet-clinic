@@ -119,6 +119,7 @@ React state:
 
 Code style:
 - Use arrow functions for components and helpers, not `function` declarations: `const Layout = () => (...)` with `export default Layout` at the bottom, and `export const formatInZone = (...) => ...` for named exports.
+- Type form submit handlers with `SubmitEvent<HTMLFormElement>`, not `FormEvent` (deprecated in `@types/react` 19.3). Don't use deprecated APIs; `tsc` and oxlint won't flag them.
 - Style with Tailwind classes. No CSS files besides `src/index.css`.
 - Test components with Testing Library, querying by role and label text, not class names or test IDs.
 - Prettier formats the code (semicolons, single quotes, sorted Tailwind classes); don't hand-format.

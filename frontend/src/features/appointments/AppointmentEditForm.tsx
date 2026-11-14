@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client/react';
-import { type FormEvent, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 
 import ErrorMessage from '../../components/ErrorMessage';
 import Field from '../../components/Field';
@@ -34,7 +34,7 @@ const AppointmentEditForm = ({ appointment, vets, timeZone }: Props) => {
     setSaved(false);
   };
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const input = { startsAt: fromWallTime(startsAt, timeZone), vetId, reason };

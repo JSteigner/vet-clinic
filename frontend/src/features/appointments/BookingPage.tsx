@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client/react';
-import { type FormEvent, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 
 import ErrorMessage from '../../components/ErrorMessage';
@@ -27,7 +27,7 @@ const BookingPage = () => {
   const [createAppointment, { loading, error }] = useMutation(CREATE_APPOINTMENT);
   const errors = fieldErrors(error);
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!timeZone) return;
 

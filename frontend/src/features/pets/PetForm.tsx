@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 
 import ErrorMessage from '../../components/ErrorMessage';
 import Field from '../../components/Field';
@@ -30,7 +30,7 @@ const PetForm = ({ pet, submitLabel, busy, error, onSubmit, onCancel }: Props) =
   const [birthDate, setBirthDate] = useState(pet?.birthDate ?? '');
   const errors = fieldErrors(error);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit({ name, species, breed: breed || null, birthDate: birthDate || null });
   };

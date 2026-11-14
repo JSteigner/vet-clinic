@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 
 import ErrorMessage from '../../components/ErrorMessage';
 import Field from '../../components/Field';
@@ -25,7 +25,7 @@ const OwnerForm = ({ owner, submitLabel, busy, error, onSubmit, onCancel }: Prop
   const [phone, setPhone] = useState(owner?.phone ?? '');
   const errors = fieldErrors(error);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit({ name, email, phone: phone || null });
   };
