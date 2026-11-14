@@ -67,10 +67,17 @@ const AppointmentPage = () => {
         <dd>{formatInZone(startsAt, timeZone, "EEEE, MMMM d, yyyy 'at' h:mm a")}</dd>
         <dt className="text-slate-500">Pet</dt>
         <dd>
-          {pet.name} ({speciesLabel(pet.species)})
+          <Link to={`/pets/${pet.id}`} className="text-teal-700 hover:underline">
+            {pet.name}
+          </Link>{' '}
+          ({speciesLabel(pet.species)})
         </dd>
         <dt className="text-slate-500">Owner</dt>
-        <dd>{pet.owner.name}</dd>
+        <dd>
+          <Link to={`/owners/${pet.owner.id}`} className="text-teal-700 hover:underline">
+            {pet.owner.name}
+          </Link>
+        </dd>
         <dt className="text-slate-500">Vet</dt>
         <dd>{vet.name}</dd>
         <dt className="text-slate-500">Reason</dt>

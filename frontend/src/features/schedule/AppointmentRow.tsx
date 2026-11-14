@@ -28,11 +28,16 @@ const AppointmentRow = ({ appointment, timeZone, busy, onStatusChange }: Props) 
       </Link>
       <div className="min-w-0">
         <p className="truncate font-medium">
-          {pet.name}{' '}
+          <Link to={`/pets/${pet.id}`} className="hover:underline">
+            {pet.name}
+          </Link>{' '}
           <span className="font-normal text-slate-500">({speciesLabel(pet.species)})</span>
         </p>
         <p className="truncate text-sm text-slate-500">
-          {pet.owner.name} · {reason}
+          <Link to={`/owners/${pet.owner.id}`} className="hover:underline">
+            {pet.owner.name}
+          </Link>
+          {` · ${reason}`}
         </p>
       </div>
       <p className="hidden truncate text-sm text-slate-600 sm:block">{vet.name}</p>

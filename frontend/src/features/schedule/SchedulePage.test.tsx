@@ -69,9 +69,10 @@ describe('SchedulePage', () => {
 
     const row = within(await screen.findByRole('listitem'));
     expect(row.getByText('9:30 AM')).toBeInTheDocument();
-    expect(row.getByText('Rex')).toBeInTheDocument();
+    expect(row.getByRole('link', { name: 'Rex' })).toHaveAttribute('href', '/pets/10');
     expect(row.getByText('(Dog)')).toBeInTheDocument();
-    expect(row.getByText('Ana Lima · Annual checkup')).toBeInTheDocument();
+    expect(row.getByRole('link', { name: 'Ana Lima' })).toHaveAttribute('href', '/owners/20');
+    expect(row.getByText('· Annual checkup', { exact: false })).toBeInTheDocument();
     expect(row.getByText('Dr. Kim')).toBeInTheDocument();
     expect(row.getByText('Scheduled')).toBeInTheDocument();
     expect(screen.getByText(formatDate(tomorrow))).toBeInTheDocument();

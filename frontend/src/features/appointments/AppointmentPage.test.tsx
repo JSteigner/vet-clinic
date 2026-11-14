@@ -62,8 +62,9 @@ describe('AppointmentPage', () => {
     expect(
       screen.getByText(formatInZone(startsAt, TEST_TIME_ZONE, "EEEE, MMMM d, yyyy 'at' h:mm a")),
     ).toBeInTheDocument();
-    expect(screen.getByText('Rex (Dog)')).toBeInTheDocument();
-    expect(screen.getByText('Ana Lima')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Rex' })).toHaveAttribute('href', '/pets/10');
+    expect(screen.getByText('(Dog)', { exact: false })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ana Lima' })).toHaveAttribute('href', '/owners/20');
     // The edit form's reason box holds the same text, so look in the details list.
     expect(screen.getByText('Annual checkup', { selector: 'dd' })).toBeInTheDocument();
   });
