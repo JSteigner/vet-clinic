@@ -1,6 +1,6 @@
 @backend/AGENTS.md
 
-# Project: VetClinic (Elixir 1.20.4 / OTP 29 / Phoenix 1.8.16 / Absinthe 1.12.0)
+# Project: VetClinic (Elixir 1.20 / OTP 29 / Phoenix 1.8 / Absinthe 1.12)
 
 Portfolio app: Phoenix + Absinthe GraphQL API in `backend/`, React + Apollo frontend in `frontend/`.
 Postgres 18 on port 5432 by default: a local install (Postgres.app here) or `docker compose up -d`. Override the connection with `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`.
@@ -17,6 +17,13 @@ Run these from `backend/`:
 - Never use Ecto (Repo, changesets, queries) in the web layer. Go through `Clinic`; e.g. `Clinic.validation_errors/1` turns a changeset into plain `%{field => [message]}` data.
 - GraphQL types go in `lib/vet_clinic_web/schema/`, resolvers in `lib/vet_clinic_web/resolvers/`. Load associations with Dataloader (`Clinic.datasource/0`), not per-row queries.
 - Subscriptions are triggered from mutations through Absinthe `trigger`. Don't publish manually from contexts.
+- Evolve the GraphQL API additively. Ask before removing or renaming a field, argument or type; deprecate it first (`deprecate: "use X"`) so clients can move off it.
+
+## Changes across the stack
+A change to the GraphQL API isn't done until the frontend matches it:
+1. Change the API and pass `mix precommit` in `backend/`.
+2. In `frontend/`, run `npm run schema` (re-exports `schema.graphql`), then `npm run codegen`.
+3. Update the frontend for the new types and pass `npm run check`.
 
 ## Tests
 - Test files mirror `lib/` (e.g. `test/vet_clinic/pets/pets_test.exs`) and use `VetClinic.DataCase`.
@@ -32,24 +39,13 @@ Run these from `backend/`:
 
 ## Elixir style
 
-Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style_guide), especially the [Expressions](https://github.com/christopheradams/elixir_style_guide#expressions) section:
+Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style_guide). `credo --strict` (in `mix precommit`, configured in `backend/.credo.exs`) enforces most of it: pipes one step per line, no single-step pipes, pipes starting with a bare value, a `@moduledoc` on every module, directive order (`@moduledoc`, `@behaviour`, `use`, `import`, `require`, `alias`), and aliases for nested modules called more than once. Fix what it reports rather than disabling checks.
 
-- Never write a pipe chain on one line. Put each step of a pipeline on its own line:
-  ```elixir
-  # Bad
-  Owner |> order_by(:name) |> Repo.all()
+Credo can't check these, so follow them by hand:
 
-  # Good
-  Owner
-  |> order_by(:name)
-  |> Repo.all()
-  ```
-- Don't pipe just once. Use a plain function call instead (`Repo.get(Owner, id)`, not `Owner |> Repo.get(id)`).
-- Start a pipeline with a bare value (variable, module or struct), not a function call.
-- Order module directives as `@moduledoc`, `@behaviour`, `use`, `import`, `require`, `alias`, module attributes, `defstruct`, `@type`, with a blank line between each group.
-- Every module starts with a `@moduledoc` directly under `defmodule` (`@moduledoc false` for internal modules), followed by a blank line.
+- After the directives come module attributes, `defstruct`, then `@type`. Put a blank line between each group, including after the `@moduledoc`:
   ```elixir
-  defmodule VetClinic.Clinic.Pet do
+  defmodule VetClinic.Pets.Pet do
     @moduledoc """
     A patient of the clinic.
     """
@@ -58,7 +54,8 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
 
     import Ecto.Changeset
 
-    alias VetClinic.Clinic.{Appointment, Owner}
+    alias VetClinic.Appointments.Appointment
+    alias VetClinic.Owners.Owner
   ```
 - In Ecto schemas, declare changeset fields as module attributes using the `~w[]a` sigil, and put enum values in their own attribute:
   ```elixir
@@ -72,7 +69,7 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
     field :species, Ecto.Enum, values: @species
   ```
   Then use `cast(attrs, @fields)` and `validate_required(@required_fields)` in the changeset.
-- If a module name is written out in full more than once in a file, alias it and use the short name everywhere, including in typespecs. A module used only once stays fully qualified.
+- Credo's alias check only counts function calls. The rule is wider: if a module name is written out in full more than once in a file (calls, structs, typespecs), alias it and use the short name everywhere. A module used only once stays fully qualified.
   ```elixir
   alias VetClinic.Appointments.Appointment
 
@@ -89,8 +86,8 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
   ```
 - Group aliases that share a parent module with curly braces:
   ```elixir
-  alias VetClinic.Clinic.{Appointment, Owner, Pet}
-  alias VetClinic.Repo
+  alias VetClinic.{Appointments, Errors, Owners, Pets, Repo, Vets}
+  alias VetClinic.Appointments.Appointment
   ```
 - Exception: never use curly braces with Absinthe's `import_types`. Write one `import_types` per module. With the `{A, B}` form, Elixir doesn't record the type modules as compile-time dependencies of the schema, so changing a type module leaves a stale compiled schema (fields missing at runtime).
 
@@ -114,6 +111,11 @@ Apollo Client:
 - Mutations return the changed object so the cache updates itself. After creates/deletes, update plain lists with `cache.modify` or `update`; refetch lists the server filters (e.g. `appointments(date:)`), since the client can't tell which ones the change belongs to.
 - Every component that queries handles `loading`, `error`, and empty states.
 - Colocate each component's data needs as a fragment in its feature's `queries.ts`; parent queries spread child fragments. Name fragments `ComponentName_prop` (e.g. `AppointmentRow_appointment`) and type the prop with the generated fragment type (`AppointmentRow_AppointmentFragment`).
+
+React state:
+- Derive values during render instead of syncing them into state with `useEffect` (e.g. compute `fullName` from `first` and `last`, filter a list from its query data).
+- Use the updater form when new state depends on the old: `setCount((count) => count + 1)`.
+- Keep state as local as possible; lift it only as far as the components that share it.
 
 Code style:
 - Use arrow functions for components and helpers, not `function` declarations: `const Layout = () => (...)` with `export default Layout` at the bottom, and `export const formatInZone = (...) => ...` for named exports.
