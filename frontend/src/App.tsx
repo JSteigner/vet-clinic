@@ -8,6 +8,7 @@ import OwnerPage from './features/owners/OwnerPage';
 import OwnersPage from './features/owners/OwnersPage';
 import PetPage from './features/pets/PetPage';
 import SchedulePage from './features/schedule/SchedulePage';
+import VetPage from './features/vets/VetPage';
 import VetsPage from './features/vets/VetsPage';
 
 const App = () => (
@@ -20,6 +21,7 @@ const App = () => (
       <Route path="owners/:id" element={<OwnerPage />} />
       <Route path="pets/:id" element={<PetPage />} />
       <Route path="vets" element={<VetsPage />} />
+      <Route path="vets/:id" element={<VetPage />} />
       <Route path="*" element={<NotFound />} />
     </Route>
   </Routes>
