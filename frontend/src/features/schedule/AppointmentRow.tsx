@@ -1,6 +1,9 @@
-import ConfirmButton from '../../components/ConfirmButton';
+import { Link } from 'react-router';
+
+import StatusActions from '../../components/StatusActions';
 import StatusBadge from '../../components/StatusBadge';
 import type { AppointmentRow_AppointmentFragment, AppointmentStatus } from '../../gql/graphql';
+import { speciesLabel } from '../../lib/format';
 import { formatInZone } from '../../lib/time';
 
 type Props = {
@@ -10,21 +13,23 @@ type Props = {
   onStatusChange: (status: AppointmentStatus) => void;
 };
 
-const capitalize = (word: string) => word.charAt(0) + word.slice(1).toLowerCase();
-
 const AppointmentRow = ({ appointment, timeZone, busy, onStatusChange }: Props) => {
-  const { startsAt, reason, status, pet, vet } = appointment;
-  const open = status === 'SCHEDULED' || status === 'CHECKED_IN';
+  const { id, startsAt, reason, status, pet, vet } = appointment;
 
   return (
     // Phones: status and actions wrap under the details. Wider: one row.
     <li className="grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2 px-4 py-3 sm:grid-cols-[5rem_1fr_10rem_auto]">
-      <time dateTime={startsAt} className="font-medium whitespace-nowrap tabular-nums">
-        {formatInZone(startsAt, timeZone)}
-      </time>
+      <Link
+        to={`/appointments/${id}`}
+        aria-label={`Open ${pet.name}'s appointment`}
+        className="font-medium whitespace-nowrap text-teal-700 tabular-nums hover:underline"
+      >
+        <time dateTime={startsAt}>{formatInZone(startsAt, timeZone)}</time>
+      </Link>
       <div className="min-w-0">
         <p className="truncate font-medium">
-          {pet.name} <span className="font-normal text-slate-500">({capitalize(pet.species)})</span>
+          {pet.name}{' '}
+          <span className="font-normal text-slate-500">({speciesLabel(pet.species)})</span>
         </p>
         <p className="truncate text-sm text-slate-500">
           {pet.owner.name} · {reason}
@@ -33,34 +38,7 @@ const AppointmentRow = ({ appointment, timeZone, busy, onStatusChange }: Props) 
       <p className="hidden truncate text-sm text-slate-600 sm:block">{vet.name}</p>
       <div className="col-start-2 flex flex-wrap items-center gap-2 sm:col-start-auto sm:justify-end">
         <StatusBadge status={status} />
-        {status === 'SCHEDULED' && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => onStatusChange('CHECKED_IN')}
-            className="rounded-md bg-teal-600 px-2.5 py-1 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
-          >
-            Check in
-          </button>
-        )}
-        {status === 'CHECKED_IN' && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => onStatusChange('COMPLETED')}
-            className="rounded-md bg-emerald-600 px-2.5 py-1 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-          >
-            Complete
-          </button>
-        )}
-        {open && (
-          <ConfirmButton
-            label="Cancel"
-            question="Cancel this visit?"
-            disabled={busy}
-            onConfirm={() => onStatusChange('CANCELLED')}
-          />
-        )}
+        <StatusActions status={status} busy={busy} onChange={onStatusChange} />
       </div>
     </li>
   );

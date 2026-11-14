@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client/react';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import ErrorMessage from '../../components/ErrorMessage';
+import { PRIMARY_BUTTON } from '../../components/styles';
 import type { AppointmentStatus } from '../../gql/graphql';
 import { formatDate, shiftDate, todayInZone, useClinicTimeZone } from '../../lib/time';
 import AppointmentRow from './AppointmentRow';
@@ -20,6 +21,9 @@ const SchedulePage = () => {
   const { data, error, refetch } = useQuery(DAILY_SCHEDULE, {
     variables: { date },
     skip: !date,
+    // Show the cached day at once, but always refetch it: bookings and deletes
+    // made elsewhere can't be placed into a server-filtered list by the cache.
+    fetchPolicy: 'cache-and-network',
   });
 
   // Any booking, reschedule or status change may affect the day shown.
@@ -83,6 +87,9 @@ const SchedulePage = () => {
               onChange={(event) => event.target.value && goTo(event.target.value)}
               className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm"
             />
+            <Link to={`/appointments/new?date=${date}`} className={PRIMARY_BUTTON}>
+              Book appointment
+            </Link>
           </div>
         )}
       </div>

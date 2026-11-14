@@ -77,6 +77,19 @@ describe('SchedulePage', () => {
     expect(screen.getByText(formatDate(tomorrow))).toBeInTheDocument();
   });
 
+  test('links to booking for the day shown and to each appointment', async () => {
+    renderPage([schedule(tomorrow, [appointment()])]);
+
+    expect(await screen.findByRole('link', { name: "Open Rex's appointment" })).toHaveAttribute(
+      'href',
+      '/appointments/1',
+    );
+    expect(screen.getByRole('link', { name: 'Book appointment' })).toHaveAttribute(
+      'href',
+      `/appointments/new?date=${tomorrow}`,
+    );
+  });
+
   test('defaults to today in the clinic zone', async () => {
     renderPage([schedule(today, [])], '/');
 
