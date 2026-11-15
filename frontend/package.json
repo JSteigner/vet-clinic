@@ -12,6 +12,7 @@
     "schema": "cd ../backend && mix absinthe.schema.sdl --schema VetClinicWeb.Schema ../frontend/schema.graphql",
     "codegen": "graphql-codegen",
     "audit": "npm audit --omit=dev && npm audit --audit-level=high",
+    "e2e": "playwright test",
     "check": "npm run audit && graphql-codegen --check && tsc -b && oxlint --deny-warnings && prettier --check . && vitest run --coverage",
     "preview": "vite preview"
   },
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^8.0.0",
     "@graphql-codegen/client-preset": "^7.0.0",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
