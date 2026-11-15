@@ -25,7 +25,7 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 | GraphQL | Absinthe 1.12, Absinthe.Phoenix (subscriptions over Phoenix Channels), Dataloader |
 | Database | PostgreSQL 18 via Ecto |
 | Frontend | React, TypeScript, Vite, Apollo Client |
-| Quality | ExUnit with Faker, ExCoveralls (90% minimum), Credo (strict), Dialyzer, `mix format`, compile with warnings as errors |
+| Quality | ExUnit with Faker, ExCoveralls (90% minimum), Credo (strict), Dialyzer, `mix format`, compile with warnings as errors, dependency audits (`mix hex.audit`, `npm audit`) |
 
 ## Status
 
@@ -143,7 +143,7 @@ Browser origins allowed to call the API (CORS) are set with `config :vet_clinic,
 
 ```bash
 cd backend
-mix precommit         # compile with warnings as errors, format, credo --strict, dialyzer, tests + 90% coverage
+mix precommit         # compile with warnings as errors, hex.audit, format, credo --strict, dialyzer, tests + 90% coverage
 mix coveralls.html    # browsable coverage report in cover/excoveralls.html
 ```
 

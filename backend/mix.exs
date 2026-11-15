@@ -97,6 +97,10 @@ defmodule VetClinic.MixProject do
       precommit: [
         "compile --warnings-as-errors",
         "deps.unlock --unused",
+        # Fails on retired Hex packages and ones with security advisories.
+        # Run through cmd: hex.audit lives in the Hex archive, which an alias
+        # can't load as a task; cmd still stops the alias if it fails.
+        "cmd mix hex.audit",
         "format",
         "credo --strict",
         "dialyzer",

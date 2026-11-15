@@ -11,7 +11,8 @@
     "test": "vitest",
     "schema": "cd ../backend && mix absinthe.schema.sdl --schema VetClinicWeb.Schema ../frontend/schema.graphql",
     "codegen": "graphql-codegen",
-    "check": "graphql-codegen --check && tsc -b && oxlint --deny-warnings && prettier --check . && vitest run --coverage",
+    "audit": "npm audit --omit=dev && npm audit --audit-level=high",
+    "check": "npm run audit && graphql-codegen --check && tsc -b && oxlint --deny-warnings && prettier --check . && vitest run --coverage",
     "preview": "vite preview"
   },
   "dependencies": {
