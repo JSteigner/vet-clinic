@@ -13,6 +13,9 @@ export default defineConfig({
     coverage: {
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/gql/**', 'src/main.tsx'],
+      // Fail `vitest run --coverage` (and so `npm run check`) below 90%, matching
+      // the backend's line coverage minimum.
+      thresholds: { lines: 90, statements: 90 },
     },
   },
 });
