@@ -81,6 +81,13 @@ describe('BookingPage', () => {
     expect(time).toHaveValue(`${tomorrow}T09:00`);
   });
 
+  test('starts with no time, and goes back to the schedule, when opened without a day', async () => {
+    renderPage([], '/appointments/new');
+
+    expect(await screen.findByLabelText(`Date and time (${TEST_TIME_ZONE})`)).toHaveValue('');
+    expect(screen.getByRole('link', { name: 'Back to schedule' })).toHaveAttribute('href', '/');
+  });
+
   test('offers pets only after an owner is chosen', async () => {
     const user = userEvent.setup();
     renderPage([]);

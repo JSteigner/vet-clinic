@@ -13,9 +13,9 @@ export default defineConfig({
     coverage: {
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/gql/**', 'src/main.tsx'],
-      // Fail `vitest run --coverage` (and so `npm run check`) below 90%, matching
-      // the backend's line coverage minimum.
-      thresholds: { lines: 90, statements: 90 },
+      // Fail `vitest run --coverage` (and so `npm run check`) below 90% on any
+      // metric. Playwright doesn't count here: only Vitest runs are measured.
+      thresholds: { lines: 90, statements: 90, functions: 90, branches: 90 },
     },
   },
 });

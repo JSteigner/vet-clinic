@@ -46,6 +46,15 @@ describe('fieldErrors', () => {
     });
   });
 
+  test("keeps messages that don't start with the field name", () => {
+    const error = graphQLErrors({
+      message: 'Pick a later time',
+      extensions: { field: 'startsAt' },
+    });
+
+    expect(fieldErrors(error)).toEqual({ startsAt: 'Pick a later time' });
+  });
+
   test('skips errors without a field', () => {
     expect(fieldErrors(graphQLErrors({ message: 'pet not found' }))).toEqual({});
     expect(fieldErrors(undefined)).toEqual({});

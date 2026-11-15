@@ -1,3 +1,4 @@
+import { InMemoryCache } from '@apollo/client';
 import type { MockLink } from '@apollo/client/testing';
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -7,7 +8,7 @@ import { describe, expect, test } from 'vitest';
 import { formatDate, fromWallTime, shiftDate, todayInZone } from '../../lib/time';
 import LocationDisplay from '../../test/LocationDisplay';
 import { renderWithProviders, TEST_TIME_ZONE } from '../../test/render';
-import { DELETE_VET, UPDATE_VET, VET, VET_APPOINTMENTS } from './queries';
+import { DELETE_VET, UPDATE_VET, VET, VET_APPOINTMENTS, VETS } from './queries';
 import VetPage from './VetPage';
 
 // All dates are relative to today in the clinic zone, so the tests never go stale.
@@ -40,7 +41,10 @@ const schedule = (date: string, appointments: object[]): MockLink.MockedResponse
   result: { data: { vetAppointments: appointments } },
 });
 
-const renderPage = (mocks: MockLink.MockedResponse[], route = '/vets/30') =>
+const renderPage = (
+  mocks: MockLink.MockedResponse[],
+  { route = '/vets/30', cache }: { route?: string; cache?: InMemoryCache } = {},
+) =>
   renderWithProviders(
     <>
       <Routes>
@@ -49,10 +53,61 @@ const renderPage = (mocks: MockLink.MockedResponse[], route = '/vets/30') =>
       </Routes>
       <LocationDisplay />
     </>,
-    { mocks, route },
+    { mocks, route, cache },
   );
 
+const deleted: MockLink.MockedResponse = {
+  request: { query: DELETE_VET, variables: { id: '30' } },
+  result: { data: { deleteVet: { __typename: 'Vet', id: '30' } } },
+};
+
 describe('VetPage', () => {
+  test('goes back to today from another day', async () => {
+    const user = userEvent.setup();
+    renderPage([vetQuery, schedule(tomorrow, [visit]), schedule(today, [])], {
+      route: `/vets/30?date=${tomorrow}`,
+    });
+
+    expect(await screen.findByText(formatDate(tomorrow))).toBeInTheDocument();
+    // Today needs the clinic zone; the visit list only renders once it's loaded.
+    expect(await screen.findByRole('list', { name: 'Visits' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Today' }));
+
+    expect(await screen.findByText(formatDate(today))).toBeInTheDocument();
+    expect(await screen.findByText('No visits on this day.')).toBeInTheDocument();
+  });
+
+  test('cancels editing without saving', async () => {
+    const user = userEvent.setup();
+    renderPage([vetQuery, schedule(today, [])]);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.queryByRole('form', { name: 'Edit vet' })).not.toBeInTheDocument();
+  });
+
+  test('removes a deleted vet from the cached vets list', async () => {
+    const user = userEvent.setup();
+    const cache = new InMemoryCache();
+    cache.writeQuery({
+      query: VETS,
+      data: {
+        vets: [
+          { __typename: 'Vet', id: '30', name: 'Dr. Kim', email: 'kim@example.com' },
+          { __typename: 'Vet', id: '31', name: 'Dr. Lee', email: 'lee@example.com' },
+        ],
+      },
+    });
+    renderPage([vetQuery, schedule(today, []), deleted], { cache });
+
+    await user.click(await screen.findByRole('button', { name: 'Delete vet' }));
+    await user.click(screen.getByRole('button', { name: 'Yes' }));
+
+    expect(await screen.findByText('Vets')).toBeInTheDocument();
+    expect(cache.readQuery({ query: VETS })?.vets.map(({ name }) => name)).toEqual(['Dr. Lee']);
+  });
+
   test("shows the vet and today's schedule by default", async () => {
     renderPage([vetQuery, schedule(today, [])]);
 
@@ -111,14 +166,7 @@ describe('VetPage', () => {
 
   test('deletes a vet with no appointments and returns to the list', async () => {
     const user = userEvent.setup();
-    renderPage([
-      vetQuery,
-      schedule(today, []),
-      {
-        request: { query: DELETE_VET, variables: { id: '30' } },
-        result: { data: { deleteVet: { __typename: 'Vet', id: '30' } } },
-      },
-    ]);
+    renderPage([vetQuery, schedule(today, []), deleted]);
 
     await user.click(await screen.findByRole('button', { name: 'Delete vet' }));
     await user.click(screen.getByRole('button', { name: 'Yes' }));

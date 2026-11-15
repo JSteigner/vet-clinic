@@ -1,3 +1,4 @@
+import type { InMemoryCache } from '@apollo/client';
 import type { MockLink } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { render } from '@testing-library/react';
@@ -15,16 +16,23 @@ export const clinicTimeZoneMock: MockLink.MockedResponse = {
   maxUsageCount: Number.POSITIVE_INFINITY,
 };
 
+type Options = {
+  mocks?: MockLink.MockedResponse[];
+  route?: string;
+  /** A cache to render with, e.g. seeded with writeQuery to test cache updates. */
+  cache?: InMemoryCache;
+};
+
 /**
  * Renders `ui` inside a router at `route` and an Apollo MockedProvider with
  * `mocks` (plus the clinic time zone), the way pages run in the app.
  */
 export const renderWithProviders = (
   ui: ReactElement,
-  { mocks = [], route = '/' }: { mocks?: MockLink.MockedResponse[]; route?: string } = {},
+  { mocks = [], route = '/', cache }: Options = {},
 ) =>
   render(
-    <MockedProvider mocks={[clinicTimeZoneMock, ...mocks]}>
+    <MockedProvider mocks={[clinicTimeZoneMock, ...mocks]} cache={cache}>
       <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
     </MockedProvider>,
   );

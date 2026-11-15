@@ -1,5 +1,5 @@
 import type { MockLink } from '@apollo/client/testing';
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router';
 import { describe, expect, test } from 'vitest';
@@ -103,7 +103,7 @@ describe('PetPage', () => {
           query: UPDATE_PET,
           variables: {
             id: '10',
-            input: { name: 'Rex', species: 'DOG', breed: 'Beagle mix', birthDate: '2020-05-01' },
+            input: { name: 'Rex', species: 'DOG', breed: 'Beagle mix', birthDate: '2020-06-01' },
           },
         },
         result: {
@@ -114,7 +114,7 @@ describe('PetPage', () => {
               name: 'Rex',
               species: 'DOG',
               breed: 'Beagle mix',
-              birthDate: '2020-05-01',
+              birthDate: '2020-06-01',
             },
           },
         },
@@ -125,10 +125,70 @@ describe('PetPage', () => {
     const breed = screen.getByLabelText('Breed (optional)');
     await user.clear(breed);
     await user.type(breed, 'Beagle mix');
+    // user.type can't fill a date input in jsdom; set the value directly.
+    fireEvent.change(screen.getByLabelText('Birth date (optional)'), {
+      target: { value: '2020-06-01' },
+    });
     await user.click(screen.getByRole('button', { name: 'Save changes' }));
 
     expect(await screen.findByText('Beagle mix')).toBeInTheDocument();
+    expect(screen.getByText('June 1, 2020')).toBeInTheDocument();
     expect(screen.queryByRole('form', { name: 'Edit pet' })).not.toBeInTheDocument();
+  });
+
+  test('cancels editing without saving', async () => {
+    const user = userEvent.setup();
+    renderPage([petQuery, visits(null, [])]);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.queryByRole('form', { name: 'Edit pet' })).not.toBeInTheDocument();
+    expect(screen.getByText('Beagle')).toBeInTheDocument();
+  });
+
+  test('shows a dash for a missing breed or birth date', async () => {
+    renderPage([
+      {
+        request: { query: PET, variables: { id: '10' } },
+        result: {
+          data: {
+            pet: {
+              __typename: 'Pet',
+              id: '10',
+              name: 'Rex',
+              species: 'DOG',
+              breed: null,
+              birthDate: null,
+              owner: { __typename: 'Owner', id: '20', name: 'Ana Lima' },
+            },
+          },
+        },
+      },
+      visits(null, []),
+    ]);
+
+    expect(await screen.findByRole('heading', { name: 'Rex' })).toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(2);
+  });
+
+  test('shows an error when archiving fails', async () => {
+    const user = userEvent.setup();
+    renderPage([
+      petQuery,
+      visits(null, []),
+      {
+        request: { query: DELETE_PET, variables: { id: '10' } },
+        result: { errors: [{ message: 'Something broke' }] },
+      },
+    ]);
+
+    await user.click(await screen.findByRole('button', { name: 'Archive pet' }));
+    await user.click(screen.getByRole('button', { name: 'Yes' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Couldn't archive the pet: Something broke",
+    );
   });
 
   test("archives the pet and returns to its owner's page", async () => {

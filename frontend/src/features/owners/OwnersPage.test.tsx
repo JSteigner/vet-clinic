@@ -103,6 +103,23 @@ describe('OwnersPage', () => {
     expect(screen.getByLabelText('Email')).toHaveAttribute('aria-invalid', 'true');
   });
 
+  test("shows an owner's phone when they have one", async () => {
+    renderPage([ownersQuery([{ ...owner('20', 'Ana Lima', []), phone: '555-0100' }])]);
+
+    expect(await screen.findByText('ana@example.com · 555-0100')).toBeInTheDocument();
+  });
+
+  test('shows errors that belong to no field above the form fields', async () => {
+    const user = userEvent.setup();
+    renderPage([ownersQuery([]), createOwner({ errors: [{ message: 'Something broke' }] })]);
+
+    await fillInNewOwner(user);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Couldn't save the owner: Something broke",
+    );
+  });
+
   test('cancels adding an owner', async () => {
     const user = userEvent.setup();
     renderPage([ownersQuery([])]);

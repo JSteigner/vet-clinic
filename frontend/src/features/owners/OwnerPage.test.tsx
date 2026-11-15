@@ -1,3 +1,4 @@
+import { InMemoryCache } from '@apollo/client';
 import type { MockLink } from '@apollo/client/testing';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,7 +9,7 @@ import LocationDisplay from '../../test/LocationDisplay';
 import { renderWithProviders } from '../../test/render';
 import { CREATE_PET } from '../pets/queries';
 import OwnerPage from './OwnerPage';
-import { DELETE_OWNER, OWNER, UPDATE_OWNER } from './queries';
+import { DELETE_OWNER, OWNER, OWNERS, UPDATE_OWNER } from './queries';
 
 const pet = (id: string, name: string, species: string, archivedAt: string | null = null) => ({
   __typename: 'Pet',
@@ -39,7 +40,7 @@ const ownerQuery: MockLink.MockedResponse = {
   },
 };
 
-const renderPage = (mocks: MockLink.MockedResponse[]) =>
+const renderPage = (mocks: MockLink.MockedResponse[], cache?: InMemoryCache) =>
   renderWithProviders(
     <>
       <Routes>
@@ -48,10 +49,91 @@ const renderPage = (mocks: MockLink.MockedResponse[]) =>
       </Routes>
       <LocationDisplay />
     </>,
-    { mocks, route: '/owners/20' },
+    { mocks, route: '/owners/20', cache },
   );
 
+const archiveOwner = (result: MockLink.MockedResponse['result']): MockLink.MockedResponse => ({
+  request: { query: DELETE_OWNER, variables: { id: '20' } },
+  result,
+});
+
+const archived = {
+  data: { deleteOwner: { __typename: 'Owner', id: '20', archivedAt: '2026-11-14T00:00:00Z' } },
+};
+
 describe('OwnerPage', () => {
+  test('shows an owner with no phone or pets', async () => {
+    renderPage([
+      {
+        request: { query: OWNER, variables: { id: '20' } },
+        result: {
+          data: {
+            owner: {
+              __typename: 'Owner',
+              id: '20',
+              name: 'Ana Lima',
+              email: 'ana@example.com',
+              phone: null,
+              pets: [],
+            },
+          },
+        },
+      },
+    ]);
+
+    expect(await screen.findByText('No pets yet.')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
+  });
+
+  test('cancels editing and adding a pet without saving', async () => {
+    const user = userEvent.setup();
+    renderPage([ownerQuery]);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('form', { name: 'Edit owner' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Add pet' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('form', { name: 'New pet' })).not.toBeInTheDocument();
+  });
+
+  test('removes an archived owner from the cached owners list', async () => {
+    const user = userEvent.setup();
+    const cache = new InMemoryCache();
+    const listed = (id: string, name: string) => ({
+      __typename: 'Owner' as const,
+      id,
+      name,
+      email: `${id}@example.com`,
+      phone: null,
+      pets: [],
+    });
+    cache.writeQuery({
+      query: OWNERS,
+      data: { owners: [listed('20', 'Ana Lima'), listed('21', 'Ben Cho')] },
+    });
+    renderPage([ownerQuery, archiveOwner(archived)], cache);
+
+    await user.click(await screen.findByRole('button', { name: 'Archive owner' }));
+    await user.click(screen.getByRole('button', { name: 'Yes' }));
+
+    expect(await screen.findByText('Owners')).toBeInTheDocument();
+    expect(cache.readQuery({ query: OWNERS })?.owners.map(({ name }) => name)).toEqual(['Ben Cho']);
+  });
+
+  test('shows an error when archiving fails', async () => {
+    const user = userEvent.setup();
+    renderPage([ownerQuery, archiveOwner({ errors: [{ message: 'Something broke' }] })]);
+
+    await user.click(await screen.findByRole('button', { name: 'Archive owner' }));
+    await user.click(screen.getByRole('button', { name: 'Yes' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Couldn't archive the owner: Something broke",
+    );
+  });
+
   test('shows contact details and pets, archived ones without a link', async () => {
     renderPage([ownerQuery]);
 
@@ -131,17 +213,7 @@ describe('OwnerPage', () => {
 
   test('archives the owner after confirming', async () => {
     const user = userEvent.setup();
-    renderPage([
-      ownerQuery,
-      {
-        request: { query: DELETE_OWNER, variables: { id: '20' } },
-        result: {
-          data: {
-            deleteOwner: { __typename: 'Owner', id: '20', archivedAt: '2026-11-14T00:00:00Z' },
-          },
-        },
-      },
-    ]);
+    renderPage([ownerQuery, archiveOwner(archived)]);
 
     await user.click(await screen.findByRole('button', { name: 'Archive owner' }));
     await user.click(screen.getByRole('button', { name: 'Yes' }));

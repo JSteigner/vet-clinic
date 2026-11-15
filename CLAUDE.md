@@ -95,7 +95,7 @@ Credo can't check these, so follow them by hand:
 React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, Apollo Client. Run these from `frontend/`:
 - Dev server: `npm run dev` (http://localhost:5173; expects the API on http://localhost:4000)
 - Test: `npm test` (watch mode) or `npx vitest run src/path.test.tsx`
-- Before finishing any frontend task: `npm run check` (`npm run audit`, `graphql-codegen --check`, `tsc -b`, `oxlint --deny-warnings`, `prettier --check`, then `vitest run --coverage` with a 90% minimum for lines and statements)
+- Before finishing any frontend task: `npm run check` (`npm run audit`, `graphql-codegen --check`, `tsc -b`, `oxlint --deny-warnings`, `prettier --check`, then `vitest run --coverage` with a 90% minimum for lines, statements, functions and branches)
 - Format: `npm run format`
 - Dependency audit: `npm run audit` fails on any advisory in runtime deps (shipped to browsers) and on high/critical ones in dev deps. Moderate dev-only advisories print but pass; don't "fix" them with `npm audit fix --force`, which can downgrade majors.
 - End-to-end: `npm run e2e` (Playwright, specs in `e2e/`). Needs Postgres; starts Phoenix (4000) and Vite (5173) or reuses them if running, and works against the dev database. Not part of `npm run check`; run it after changes to pages or the API.

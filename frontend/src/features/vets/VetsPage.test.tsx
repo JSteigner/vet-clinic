@@ -87,6 +87,27 @@ describe('VetsPage', () => {
     expect(screen.getByLabelText('Email')).toHaveAttribute('aria-invalid', 'true');
   });
 
+  test('cancels adding a vet', async () => {
+    const user = userEvent.setup();
+    renderPage([vetsQuery([])]);
+
+    await user.click(await screen.findByRole('button', { name: 'Add vet' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.queryByRole('form', { name: 'New vet' })).not.toBeInTheDocument();
+  });
+
+  test('shows errors that belong to no field above the form fields', async () => {
+    const user = userEvent.setup();
+    renderPage([vetsQuery([]), createVet({ errors: [{ message: 'Something broke' }] })]);
+
+    await fillInNewVet(user);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Couldn't save the vet: Something broke",
+    );
+  });
+
   test('shows an empty state and load errors', async () => {
     const { unmount } = renderPage([vetsQuery([])]);
     expect(await screen.findByText('No vets yet.')).toBeInTheDocument();
