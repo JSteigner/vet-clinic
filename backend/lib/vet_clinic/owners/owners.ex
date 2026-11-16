@@ -7,6 +7,7 @@ defmodule VetClinic.Owners do
   """
 
   import Ecto.Query, warn: false
+  import VetClinic.Archivable
 
   alias Ecto.Changeset
   alias Ecto.Multi
@@ -97,9 +98,4 @@ defmodule VetClinic.Owners do
       {:error, _step, changeset, _changes} -> {:error, changeset}
     end
   end
-
-  defp maybe_active(query, true = _include_archived), do: query
-  defp maybe_active(query, _include_archived), do: active(query)
-
-  defp active(query), do: where(query, [o], is_nil(o.archived_at))
 end

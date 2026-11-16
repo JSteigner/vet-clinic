@@ -8,6 +8,7 @@ defmodule VetClinic.Pets do
   """
 
   import Ecto.Query, warn: false
+  import VetClinic.Archivable
 
   alias Ecto.Changeset
   alias Ecto.Multi
@@ -127,9 +128,4 @@ defmodule VetClinic.Pets do
     |> where([p], p.owner_id == ^owner_id)
     |> select([p], p.id)
   end
-
-  defp maybe_active(query, true = _include_archived), do: query
-  defp maybe_active(query, _include_archived), do: active(query)
-
-  defp active(query), do: where(query, [p], is_nil(p.archived_at))
 end

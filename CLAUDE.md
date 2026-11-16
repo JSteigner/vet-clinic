@@ -43,6 +43,7 @@ Follow the [Elixir Style Guide](https://github.com/christopheradams/elixir_style
 
 Credo can't check these, so follow them by hand:
 
+- Private functions (`defp`) go at the bottom of the module, after every public function, in tests too (after the last `test`/`describe`).
 - After the directives come module attributes, `defstruct`, then `@type`. Put a blank line between each group, including after the `@moduledoc`:
   ```elixir
   defmodule VetClinic.Pets.Pet do

@@ -5,13 +5,6 @@ defmodule VetClinic.ErrorsTest do
 
   alias VetClinic.Errors
 
-  # A schemaless changeset, so these tests need no database.
-  defp changeset(attrs) do
-    {%{}, %{name: :string, reason: :string}}
-    |> Changeset.cast(attrs, [:name, :reason])
-    |> Changeset.validate_required([:reason])
-  end
-
   describe "validation_errors/1" do
     test "fills placeholders such as %{count} from the error's options" do
       result =
@@ -36,5 +29,12 @@ defmodule VetClinic.ErrorsTest do
     test "ignores anything that isn't a changeset" do
       assert Errors.validation_errors("pet not found") == :ignore
     end
+  end
+
+  # A schemaless changeset, so these tests need no database.
+  defp changeset(attrs) do
+    {%{}, %{name: :string, reason: :string}}
+    |> Changeset.cast(attrs, [:name, :reason])
+    |> Changeset.validate_required([:reason])
   end
 end
