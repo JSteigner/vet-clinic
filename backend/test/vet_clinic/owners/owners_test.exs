@@ -174,4 +174,37 @@ defmodule VetClinic.OwnersTest do
       assert Repo.reload!(pet).archived_at == nil
     end
   end
+
+  describe "search_owners/2" do
+    setup do
+      %{
+        maria: owner_fixture(%{name: "Maria Lopez", email: unique_email(), phone: "555-0101"}),
+        james: owner_fixture(%{name: "James Carter", email: "jc.#{unique_email()}", phone: nil})
+      }
+    end
+
+    test "matches names and emails, case-insensitively" do
+      assert names(Owners.search_owners("LOP", limit: 5)) == ["Maria Lopez"]
+      assert names(Owners.search_owners("jc.", limit: 5)) == ["James Carter"]
+    end
+
+    test "matches phone numbers by their digits, with or without punctuation" do
+      assert names(Owners.search_owners("5550101", limit: 5)) == ["Maria Lopez"]
+      assert names(Owners.search_owners("555 01", limit: 5)) == ["Maria Lopez"]
+    end
+
+    test "searches archived owners only when asked", %{maria: maria} do
+      {:ok, _} = Owners.delete_owner(maria)
+
+      assert names(Owners.search_owners("maria", limit: 5)) == []
+      assert names(Owners.search_owners("maria", archived: true, limit: 5)) == ["Maria Lopez"]
+    end
+
+    test "lists owners by name for a nil term, up to the limit" do
+      assert names(Owners.search_owners(nil, limit: 5)) == ["James Carter", "Maria Lopez"]
+      assert names(Owners.search_owners(nil, limit: 1)) == ["James Carter"]
+    end
+  end
+
+  defp names(owners), do: Enum.map(owners, & &1.name)
 end

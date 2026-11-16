@@ -8,12 +8,25 @@ defmodule VetClinic.Vets do
   alias Ecto.Changeset
 
   alias VetClinic.Repo
+  alias VetClinic.Search
   alias VetClinic.Vets.Vet
 
   @spec list_vets() :: [Vet.t()]
   def list_vets do
     Vet
     |> order_by(:name)
+    |> Repo.all()
+  end
+
+  @doc """
+  Vets whose name or email matches `term` (case-insensitive, anywhere), by
+  name, up to `limit`. A `nil` term lists them all.
+  """
+  @spec search_vets(String.t() | nil, pos_integer()) :: [Vet.t()]
+  def search_vets(term, limit) do
+    Vet
+    |> Search.matching(term, [:name, :email])
+    |> Search.first_by_name(limit)
     |> Repo.all()
   end
 

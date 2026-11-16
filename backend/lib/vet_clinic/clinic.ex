@@ -34,6 +34,9 @@ defmodule VetClinic.Clinic do
   @spec get_owner(integer(), include_archived: boolean()) :: Owner.t() | nil
   defdelegate get_owner(id, opts \\ []), to: Owners
 
+  @spec search_owners(String.t() | nil, archived: boolean(), limit: pos_integer()) :: [Owner.t()]
+  defdelegate search_owners(term, opts), to: Owners
+
   @spec get_pet_owner(integer()) :: Owner.t() | nil
   defdelegate get_pet_owner(pet_id), to: Owners
 
@@ -54,6 +57,9 @@ defmodule VetClinic.Clinic do
   @spec get_pet(integer(), include_archived: boolean()) :: Pet.t() | nil
   defdelegate get_pet(id, opts \\ []), to: Pets
 
+  @spec search_pets(String.t() | nil, archived: boolean(), limit: pos_integer()) :: [Pet.t()]
+  defdelegate search_pets(term, opts), to: Pets
+
   @spec list_owner_pets(integer()) :: [Pet.t()]
   defdelegate list_owner_pets(owner_id), to: Pets
 
@@ -73,6 +79,9 @@ defmodule VetClinic.Clinic do
 
   @spec list_vets() :: [Vet.t()]
   defdelegate list_vets(), to: Vets
+
+  @spec search_vets(String.t() | nil, pos_integer()) :: [Vet.t()]
+  defdelegate search_vets(term, limit), to: Vets
 
   @spec get_vet(integer()) :: Vet.t() | nil
   defdelegate get_vet(id), to: Vets

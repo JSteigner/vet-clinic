@@ -16,6 +16,7 @@ defmodule VetClinic.Owners do
   alias VetClinic.Owners.Owner
   alias VetClinic.Pets
   alias VetClinic.Repo
+  alias VetClinic.Search
 
   @spec list_owners() :: [Owner.t()]
   def list_owners do
@@ -34,6 +35,20 @@ defmodule VetClinic.Owners do
     Owner
     |> maybe_active(opts[:include_archived])
     |> Repo.get(id)
+  end
+
+  @doc """
+  Owners whose name, email or phone number matches `term` (case-insensitive,
+  anywhere; phone numbers by digits), by name, up to `:limit`. Searches active
+  owners, or archived ones with `archived: true`. A `nil` term lists them all.
+  """
+  @spec search_owners(String.t() | nil, archived: boolean(), limit: pos_integer()) :: [Owner.t()]
+  def search_owners(term, opts) do
+    Owner
+    |> archived_or_active(opts[:archived])
+    |> Search.matching(term, [:name, :email], &phone_matches/1)
+    |> Search.first_by_name(Keyword.fetch!(opts, :limit))
+    |> Repo.all()
   end
 
   @doc """
@@ -96,6 +111,23 @@ defmodule VetClinic.Owners do
     |> case do
       {:ok, %{owner: owner}} -> {:ok, owner}
       {:error, _step, changeset, _changes} -> {:error, changeset}
+    end
+  end
+
+  # Phone numbers match on digits, ignoring punctuation ("555-0101" or "5550101").
+  defp phone_matches(term) do
+    case Search.digits(term) do
+      nil ->
+        dynamic(false)
+
+      digits ->
+        dynamic(
+          [o],
+          like(
+            fragment("regexp_replace(coalesce(?, ''), '\\D', '', 'g')", o.phone),
+            ^Search.like_pattern(digits)
+          )
+        )
     end
   end
 end

@@ -16,6 +16,7 @@ defmodule VetClinic.Pets do
   alias VetClinic.Appointments
   alias VetClinic.Pets.Pet
   alias VetClinic.Repo
+  alias VetClinic.Search
 
   @doc """
   An active pet by ID, or `nil`. Pass `include_archived: true` to also find
@@ -26,6 +27,20 @@ defmodule VetClinic.Pets do
     Pet
     |> maybe_active(opts[:include_archived])
     |> Repo.get(id)
+  end
+
+  @doc """
+  Pets whose name or species matches `term` (case-insensitive, anywhere), by
+  name, up to `:limit`. Searches active pets, or archived ones with
+  `archived: true`. A `nil` term lists them all.
+  """
+  @spec search_pets(String.t() | nil, archived: boolean(), limit: pos_integer()) :: [Pet.t()]
+  def search_pets(term, opts) do
+    Pet
+    |> archived_or_active(opts[:archived])
+    |> Search.matching(term, [:name], &species_matches/1)
+    |> Search.first_by_name(Keyword.fetch!(opts, :limit))
+    |> Repo.all()
   end
 
   @doc """
@@ -127,5 +142,16 @@ defmodule VetClinic.Pets do
     Pet
     |> where([p], p.owner_id == ^owner_id)
     |> select([p], p.id)
+  end
+
+  # The species whose names contain the term ("ca" → [:cat]), worked out in
+  # Elixir so the query compares enum atoms rather than raw column text.
+  defp species_matches(term) do
+    needle = String.downcase(term)
+
+    species =
+      Enum.filter(Ecto.Enum.values(Pet, :species), &String.contains?(Atom.to_string(&1), needle))
+
+    dynamic([p], p.species in ^species)
   end
 end

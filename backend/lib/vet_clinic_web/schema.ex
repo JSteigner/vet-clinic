@@ -20,6 +20,7 @@ defmodule VetClinicWeb.Schema do
   import_types VetClinicWeb.Schema.AppointmentTypes
   import_types VetClinicWeb.Schema.OwnerTypes
   import_types VetClinicWeb.Schema.PetTypes
+  import_types VetClinicWeb.Schema.SearchTypes
   import_types VetClinicWeb.Schema.VetTypes
 
   query do
@@ -27,6 +28,7 @@ defmodule VetClinicWeb.Schema do
     import_fields :pet_queries
     import_fields :vet_queries
     import_fields :appointment_queries
+    import_fields :search_queries
   end
 
   mutation do

@@ -128,4 +128,36 @@ defmodule VetClinic.PetsTest do
       assert Repo.reload!(other_appointment).status == :scheduled
     end
   end
+
+  describe "search_pets/2" do
+    setup do
+      %{
+        rex: pet_fixture(%{name: "Rex", species: :dog}),
+        mochi: pet_fixture(%{name: "Mochi", species: :cat}),
+        clover: pet_fixture(%{name: "Clover", species: :rabbit})
+      }
+    end
+
+    test "matches names, case-insensitively" do
+      assert names(Pets.search_pets("REX", limit: 5)) == ["Rex"]
+    end
+
+    test "matches part of a species name" do
+      assert names(Pets.search_pets("ca", limit: 5)) == ["Mochi"]
+      assert names(Pets.search_pets("Rab", limit: 5)) == ["Clover"]
+    end
+
+    test "searches archived pets only when asked", %{rex: rex} do
+      {:ok, _} = Pets.delete_pet(rex)
+
+      assert names(Pets.search_pets("rex", limit: 5)) == []
+      assert names(Pets.search_pets("rex", archived: true, limit: 5)) == ["Rex"]
+    end
+
+    test "lists pets by name for a nil term, up to the limit" do
+      assert names(Pets.search_pets(nil, limit: 2)) == ["Clover", "Mochi"]
+    end
+  end
+
+  defp names(pets), do: Enum.map(pets, & &1.name)
 end

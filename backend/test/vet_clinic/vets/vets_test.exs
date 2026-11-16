@@ -73,4 +73,24 @@ defmodule VetClinic.VetsTest do
       assert Vets.get_vet(vet.id)
     end
   end
+
+  describe "search_vets/2" do
+    setup do
+      %{
+        kim: vet_fixture(%{name: "Dr. Kim", email: "kim.#{unique_email()}"}),
+        lee: vet_fixture(%{name: "Dr. Lee", email: unique_email()})
+      }
+    end
+
+    test "matches names and emails, case-insensitively" do
+      assert names(Vets.search_vets("LEE", 5)) == ["Dr. Lee"]
+      assert names(Vets.search_vets("kim.", 5)) == ["Dr. Kim"]
+    end
+
+    test "lists vets by name for a nil term, up to the limit" do
+      assert names(Vets.search_vets(nil, 1)) == ["Dr. Kim"]
+    end
+  end
+
+  defp names(vets), do: Enum.map(vets, & &1.name)
 end

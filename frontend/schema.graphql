@@ -8,14 +8,14 @@ type RootQueryType {
   "Active owners, ordered by name."
   owners: [Owner!]!
 
-  "An active owner by ID."
-  owner(id: ID!): Owner
+  "An active owner by ID, or an archived one with includeArchived."
+  owner(id: ID!, includeArchived: Boolean): Owner
 
   "The owner of a pet."
   petOwner(petId: ID!): Owner
 
-  "An active pet by ID."
-  pet(id: ID!): Pet
+  "An active pet by ID, or an archived one with includeArchived."
+  pet(id: ID!, includeArchived: Boolean): Pet
 
   "An owner's active pets, ordered by name."
   ownerPets(ownerId: ID!): [Pet!]!
@@ -48,7 +48,25 @@ type RootQueryType {
   A pet's appointments, ordered by start time. Filter by status, e.g.
   COMPLETED for history or SCHEDULED for upcoming visits.
   """
-  petAppointments(petId: ID!, status: AppointmentStatus): [Appointment!]!
+  petAppointments(petId: ID!, status: AppointmentStatus, includeArchived: Boolean): [Appointment!]!
+
+  """
+  Owners (name, email, phone), pets (name, species) and vets (name, email)
+  matching `term`, case-insensitive, by name. `archived` searches archived
+  owners and pets instead (vets aren't archived); `types` limits the groups.
+  Without a term of at least 2 characters, it lists the chosen groups when
+  `archived` or `types` is given, and returns nothing otherwise.
+  """
+  search(
+    term: String
+
+    archived: Boolean
+
+    types: [SearchType!]
+
+    "Results per group, 1 to 50."
+    limit: Int
+  ): SearchResults!
 }
 
 type RootMutationType {
@@ -59,12 +77,21 @@ type RootMutationType {
   "Archives the owner and their pets, and cancels open appointments."
   deleteOwner(id: ID!): Owner
 
+  """
+  Restores an archived owner and the pets archived with them. Cancelled
+  appointments stay cancelled.
+  """
+  restoreOwner(id: ID!): Owner
+
   createPet(input: CreatePetInput!): Pet
 
   updatePet(id: ID!, input: UpdatePetInput!): Pet
 
   "Archives the pet and cancels its open appointments."
   deletePet(id: ID!): Pet
+
+  "Restores an archived pet. Refused while its owner is archived."
+  restorePet(id: ID!): Pet
 
   createVet(input: CreateVetInput!): Vet
 
@@ -104,6 +131,19 @@ input CreateVetInput {
 input UpdateVetInput {
   name: String
   email: String
+}
+
+enum SearchType {
+  OWNER
+  PET
+  VET
+}
+
+"Search results, grouped by type. Each group is only queried if selected."
+type SearchResults {
+  owners: [Owner!]!
+  pets: [Pet!]!
+  vets: [Vet!]!
 }
 
 enum Species {
