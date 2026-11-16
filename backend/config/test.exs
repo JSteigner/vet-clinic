@@ -17,12 +17,19 @@ config :vet_clinic, VetClinic.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
-# We don't run a server during test. If one is required,
-# you can enable the server option below.
+# No server during `mix test`. The Playwright e2e tests start one with
+# `MIX_ENV=test mix phx.server`, talking to the Vite server on 5174.
 config :vet_clinic, VetClinicWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "CvrqAQRxU0C6JUe+T9QXvl8WUfDYFl+5dfbFdU06qRQ4wdSox0hWMv5Lns+kq32x",
-  server: false
+  server: false,
+  check_origin: false
+
+config :vet_clinic, :cors_origins, ["http://localhost:5174"]
+
+# Mounts Phoenix.Ecto.SQL.Sandbox in the endpoint, so each e2e test runs in
+# its own database transaction that's rolled back afterwards.
+config :vet_clinic, :sql_sandbox, true
 
 # Print only warnings and errors during test
 config :logger, level: :warning

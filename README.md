@@ -179,8 +179,10 @@ mix coveralls.html    # browsable coverage report in cover/excoveralls.html
 ```bash
 cd frontend
 npm run check         # npm audit, codegen check, tsc, oxlint, prettier, Vitest + 90% coverage
-npm run e2e           # Playwright against the running app (starts Phoenix and Vite if needed)
+npm run e2e           # Playwright against its own Phoenix (test env) and Vite servers
 ```
+
+The end-to-end tests run against the test database, never the dev one. Each test runs inside its own database transaction ([Phoenix.Ecto.SQL.Sandbox](https://hexdocs.pm/phoenix_ecto/Phoenix.Ecto.SQL.Sandbox.html)) that's rolled back when it finishes, so they leave no data behind and can run in parallel, even while the dev servers are up.
 
 After changing the GraphQL API, run `npm run schema` then `npm run codegen` in `frontend/` to update the types.
 

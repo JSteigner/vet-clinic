@@ -18,6 +18,13 @@ defmodule VetClinicWeb.Endpoint do
 
   socket "/socket", VetClinicWeb.UserSocket, websocket: true
 
+  # Test env only (e2e): POST /sandbox starts a database transaction and
+  # returns its id; requests whose user agent carries that id run inside it;
+  # DELETE /sandbox rolls it back. Never compiled into dev or prod.
+  if Application.compile_env(:vet_clinic, :sql_sandbox, false) do
+    plug Phoenix.Ecto.SQL.Sandbox, at: "/sandbox", repo: VetClinic.Repo, timeout: 30_000
+  end
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),

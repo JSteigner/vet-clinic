@@ -98,14 +98,14 @@ React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, Apollo Client. Run thes
 - Before finishing any frontend task: `npm run check` (`npm run audit`, `graphql-codegen --check`, `tsc -b`, `oxlint --deny-warnings`, `prettier --check`, then `vitest run --coverage` with a 90% minimum for lines, statements, functions and branches)
 - Format: `npm run format`
 - Dependency audit: `npm run audit` fails on any advisory in runtime deps (shipped to browsers) and on high/critical ones in dev deps. Moderate dev-only advisories print but pass; don't "fix" them with `npm audit fix --force`, which can downgrade majors.
-- End-to-end: `npm run e2e` (Playwright, specs in `e2e/`). Needs Postgres; starts Phoenix (4000) and Vite (5173) or reuses them if running, and works against the dev database. Not part of `npm run check`; run it after changes to pages or the API.
+- End-to-end: `npm run e2e` (Playwright, specs in `e2e/`). Needs Postgres. Starts its own Phoenix in the test env (4002, test database) and Vite (5174), separate from the dev servers on 4000/5173, which can keep running. Not part of `npm run check`; run it after changes to pages or the API.
 - After any GraphQL API change: `npm run schema` (re-exports `schema.graphql` from the backend), then `npm run codegen` (regenerates `src/gql/`)
 
 Conventions:
 - Code lives in `src/features/<area>/` (pages, components, `queries.ts`, tests beside them); shared UI in `src/components/`, helpers in `src/lib/`.
 - Name GraphQL document constants in SCREAMING_CASE (`DAILY_SCHEDULE`), so they never clash with the generated PascalCase result types (`DailyScheduleQuery`).
 - Write GraphQL documents with the generated `graphql()` from `src/gql` and let hooks infer their types. Never hand-write types for API data or pass generics like `useQuery<T>()`. Don't edit `src/gql/`; it's generated.
-- E2E specs set up their data through the API with the helpers in `e2e/helpers.ts` (unique names, so specs never collide with each other or the seed data), test the feature itself through the UI, and clean up in `finally` (e.g. archive the owner they created).
+- E2E specs import `test` from `e2e/fixtures.ts`, which runs each test in its own database transaction (Phoenix.Ecto.SQL.Sandbox) and rolls it back, so test data is never left behind; never point e2e at the dev database. Each test starts empty: set up its data through the API with the helpers in `e2e/helpers.ts` (unique names and emails), and test the feature itself through the UI. A browser context a spec opens itself needs `userAgent: sandbox` to join the test's transaction.
 
 Apollo Client:
 - Server data comes from Apollo only. Read `data` and derive from it; don't copy query results into `useState` (except to seed a form's draft values).

@@ -5,24 +5,28 @@ import { addDays, format } from 'date-fns';
 // Setup goes straight to the API with plain GraphQL strings: the UI is what
 // these specs test, and src/gql's typed documents are for the app itself.
 
-const API_URL = 'http://localhost:4000/api/graphql';
+/** The e2e Phoenix server: MIX_ENV=test, on the test database. */
+export const API_ORIGIN = 'http://localhost:4002';
 
 type Named = { id: string; name: string };
 
-/** Runs a GraphQL document against the dev API, failing the test on any error. */
+/** Runs a GraphQL document against the e2e API, failing the test on any error. */
 export const graphql = async <T>(
   request: APIRequestContext,
   query: string,
   variables: { [key: string]: unknown } = {},
 ): Promise<T> => {
-  const response = await request.post(API_URL, { data: { query, variables } });
+  const response = await request.post(`${API_ORIGIN}/api/graphql`, { data: { query, variables } });
   const body = (await response.json()) as { data: T; errors?: unknown };
 
   expect(body.errors, `GraphQL errors: ${JSON.stringify(body.errors)}`).toBeUndefined();
   return body.data;
 };
 
-/** A suffix that keeps names unique across runs and parallel specs. */
+/**
+ * A suffix for names and emails. Tests run in parallel in separate transactions,
+ * and two of them inserting the same email would block on its unique index.
+ */
 export const unique = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 export const clinicTimeZone = async (request: APIRequestContext) =>
@@ -40,7 +44,7 @@ export const clinicTime = (zone: string, date: string, time: string) => {
   return new Date(new TZDate(year, month - 1, day, hour, minute, zone).getTime()).toISOString();
 };
 
-/** Creates an owner with one pet, both with unique names. */
+/** Creates an owner with one pet. Each test starts from an empty database. */
 export const createOwnerWithPet = async (request: APIRequestContext) => {
   const id = unique();
   const { createOwner: owner } = await graphql<{ createOwner: Named }>(
@@ -57,9 +61,17 @@ export const createOwnerWithPet = async (request: APIRequestContext) => {
   return { owner, pet };
 };
 
-/** Any vet, for booking. */
-export const anyVet = async (request: APIRequestContext) =>
-  (await graphql<{ vets: Named[] }>(request, '{ vets { id name } }')).vets[0];
+/** Creates a vet to book with. */
+export const createVet = async (request: APIRequestContext) => {
+  const id = unique();
+  const { createVet: vet } = await graphql<{ createVet: Named }>(
+    request,
+    'mutation ($input: CreateVetInput!) { createVet(input: $input) { id name } }',
+    { input: { name: `Dr. E2E ${id}`, email: `vet-${id}@example.com` } },
+  );
+
+  return vet;
+};
 
 /** Books an appointment directly, returning its id. */
 export const createAppointment = async (
@@ -73,11 +85,6 @@ export const createAppointment = async (
       { input },
     )
   ).createAppointment.id;
-
-/** Cleanup: archives the owner and their pets, cancelling open appointments. */
-export const archiveOwner = async (request: APIRequestContext, id: string) => {
-  await graphql(request, 'mutation ($id: ID!) { deleteOwner(id: $id) { id } }', { id });
-};
 
 /**
  * Resolves once every subscription the page has sent (Absinthe "doc" pushes over
