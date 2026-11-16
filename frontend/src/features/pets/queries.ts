@@ -12,13 +12,14 @@ export const PET_FORM_FRAGMENT = graphql(`
 `);
 
 export const PET = graphql(`
-  query Pet($id: ID!) {
-    pet(id: $id) {
+  query Pet($id: ID!, $includeArchived: Boolean) {
+    pet(id: $id, includeArchived: $includeArchived) {
       id
       name
       species
       breed
       birthDate
+      archivedAt
       owner {
         id
         name
@@ -29,8 +30,8 @@ export const PET = graphql(`
 `);
 
 export const PET_APPOINTMENTS = graphql(`
-  query PetAppointments($petId: ID!, $status: AppointmentStatus) {
-    petAppointments(petId: $petId, status: $status) {
+  query PetAppointments($petId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {
+    petAppointments(petId: $petId, status: $status, includeArchived: $includeArchived) {
       id
       startsAt
       reason
@@ -70,6 +71,15 @@ export const UPDATE_PET = graphql(`
 export const DELETE_PET = graphql(`
   mutation DeletePet($id: ID!) {
     deletePet(id: $id) {
+      id
+      archivedAt
+    }
+  }
+`);
+
+export const RESTORE_PET = graphql(`
+  mutation RestorePet($id: ID!) {
+    restorePet(id: $id) {
       id
       archivedAt
     }

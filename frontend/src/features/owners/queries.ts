@@ -26,12 +26,13 @@ export const OWNERS = graphql(`
 `);
 
 export const OWNER = graphql(`
-  query Owner($id: ID!) {
-    owner(id: $id) {
+  query Owner($id: ID!, $includeArchived: Boolean) {
+    owner(id: $id, includeArchived: $includeArchived) {
       id
       name
       email
       phone
+      archivedAt
       ...OwnerForm_owner
       pets {
         id
@@ -75,6 +76,22 @@ export const DELETE_OWNER = graphql(`
     deleteOwner(id: $id) {
       id
       archivedAt
+    }
+  }
+`);
+
+export const RESTORE_OWNER = graphql(`
+  mutation RestoreOwner($id: ID!) {
+    restoreOwner(id: $id) {
+      id
+      name
+      email
+      phone
+      archivedAt
+      pets {
+        id
+        archivedAt
+      }
     }
   }
 `);

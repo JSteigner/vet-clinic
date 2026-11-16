@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 
+import ArchivedBanner from '../../components/ArchivedBanner';
 import ConfirmButton from '../../components/ConfirmButton';
 import ErrorMessage from '../../components/ErrorMessage';
 import NotFound from '../../components/NotFound';
@@ -11,18 +12,22 @@ import { isNotFound } from '../../lib/errors';
 import { speciesLabel } from '../../lib/format';
 import PetForm from './PetForm';
 import PetHistory from './PetHistory';
-import { DELETE_PET, PET, UPDATE_PET } from './queries';
+import { DELETE_PET, PET, RESTORE_PET, UPDATE_PET } from './queries';
 
-/** One pet: details (editable), owner, visit history, and archiving. */
+/**
+ * One pet: details (editable), owner, visit history, and archiving. An
+ * archived pet is read-only, with a button to restore it.
+ */
 const PetPage = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
 
-  const { data, error } = useQuery(PET, { variables: { id } });
+  const { data, error } = useQuery(PET, { variables: { id, includeArchived: true } });
   const [updatePet, updateState] = useMutation(UPDATE_PET);
   // The archived pet stays in its owner's cached pets, now with archivedAt set.
   const [deletePet, deleteState] = useMutation(DELETE_PET);
+  const [restorePet, restoreState] = useMutation(RESTORE_PET);
 
   if (error) {
     return isNotFound(error) ? (
@@ -49,6 +54,18 @@ const PetPage = () => {
       </Link>
 
       <h1 className="text-2xl font-semibold">{pet.name}</h1>
+
+      {pet.archivedAt && (
+        <ArchivedBanner
+          archivedAt={pet.archivedAt}
+          what="pet"
+          busy={restoreState.loading}
+          error={restoreState.error}
+          onRestore={() => {
+            restorePet({ variables: { id } }).catch(() => {});
+          }}
+        />
+      )}
 
       {deleteState.error && (
         <ErrorMessage error={deleteState.error} prefix="Couldn't archive the pet" />
@@ -86,22 +103,26 @@ const PetPage = () => {
               </Link>
             </dd>
           </dl>
-          <button type="button" onClick={() => setEditing(true)} className={SECONDARY_BUTTON}>
-            Edit
-          </button>
+          {!pet.archivedAt && (
+            <button type="button" onClick={() => setEditing(true)} className={SECONDARY_BUTTON}>
+              Edit
+            </button>
+          )}
         </div>
       )}
 
       <PetHistory petId={id} />
 
-      <div className="border-t border-slate-200 pt-4">
-        <ConfirmButton
-          label="Archive pet"
-          question="Archive this pet and cancel its open visits?"
-          disabled={deleteState.loading}
-          onConfirm={() => void archive()}
-        />
-      </div>
+      {!pet.archivedAt && (
+        <div className="border-t border-slate-200 pt-4">
+          <ConfirmButton
+            label="Archive pet"
+            question="Archive this pet and cancel its open visits?"
+            disabled={deleteState.loading}
+            onConfirm={() => void archive()}
+          />
+        </div>
+      )}
     </section>
   );
 };

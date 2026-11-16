@@ -24,7 +24,7 @@ const PetHistory = ({ petId }: { petId: string }) => {
 
   const { data, error } = useQuery(PET_APPOINTMENTS, {
     // Leave status out for all visits: the API filters on it whenever it's sent.
-    variables: status ? { petId, status } : { petId },
+    variables: status ? { petId, status, includeArchived: true } : { petId, includeArchived: true },
     // The server filters this list, so refetch it rather than trust the cache.
     fetchPolicy: 'cache-and-network',
   });

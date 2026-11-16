@@ -24,16 +24,18 @@ type Documents = {
     "\n  mutation DeleteAppointment($id: ID!) {\n    deleteAppointment(id: $id) {\n      id\n    }\n  }\n": typeof types.DeleteAppointmentDocument,
     "\n  fragment OwnerForm_owner on Owner {\n    id\n    name\n    email\n    phone\n  }\n": typeof types.OwnerForm_OwnerFragmentDoc,
     "\n  query Owners {\n    owners {\n      id\n      name\n      email\n      phone\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": typeof types.OwnersDocument,
-    "\n  query Owner($id: ID!) {\n    owner(id: $id) {\n      id\n      name\n      email\n      phone\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n": typeof types.OwnerDocument,
+    "\n  query Owner($id: ID!, $includeArchived: Boolean) {\n    owner(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n": typeof types.OwnerDocument,
     "\n  mutation CreateOwner($input: CreateOwnerInput!) {\n    createOwner(input: $input) {\n      id\n      name\n      email\n      phone\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": typeof types.CreateOwnerDocument,
     "\n  mutation UpdateOwner($id: ID!, $input: UpdateOwnerInput!) {\n    updateOwner(id: $id, input: $input) {\n      id\n      name\n      email\n      phone\n    }\n  }\n": typeof types.UpdateOwnerDocument,
     "\n  mutation DeleteOwner($id: ID!) {\n    deleteOwner(id: $id) {\n      id\n      archivedAt\n    }\n  }\n": typeof types.DeleteOwnerDocument,
+    "\n  mutation RestoreOwner($id: ID!) {\n    restoreOwner(id: $id) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": typeof types.RestoreOwnerDocument,
     "\n  fragment PetForm_pet on Pet {\n    id\n    name\n    species\n    breed\n    birthDate\n  }\n": typeof types.PetForm_PetFragmentDoc,
-    "\n  query Pet($id: ID!) {\n    pet(id: $id) {\n      id\n      name\n      species\n      breed\n      birthDate\n      owner {\n        id\n        name\n      }\n      ...PetForm_pet\n    }\n  }\n": typeof types.PetDocument,
-    "\n  query PetAppointments($petId: ID!, $status: AppointmentStatus) {\n    petAppointments(petId: $petId, status: $status) {\n      id\n      startsAt\n      reason\n      status\n      vet {\n        id\n        name\n      }\n    }\n  }\n": typeof types.PetAppointmentsDocument,
+    "\n  query Pet($id: ID!, $includeArchived: Boolean) {\n    pet(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      species\n      breed\n      birthDate\n      archivedAt\n      owner {\n        id\n        name\n      }\n      ...PetForm_pet\n    }\n  }\n": typeof types.PetDocument,
+    "\n  query PetAppointments($petId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {\n    petAppointments(petId: $petId, status: $status, includeArchived: $includeArchived) {\n      id\n      startsAt\n      reason\n      status\n      vet {\n        id\n        name\n      }\n    }\n  }\n": typeof types.PetAppointmentsDocument,
     "\n  mutation CreatePet($input: CreatePetInput!) {\n    createPet(input: $input) {\n      id\n      name\n      species\n      breed\n      archivedAt\n    }\n  }\n": typeof types.CreatePetDocument,
     "\n  mutation UpdatePet($id: ID!, $input: UpdatePetInput!) {\n    updatePet(id: $id, input: $input) {\n      id\n      name\n      species\n      breed\n      birthDate\n    }\n  }\n": typeof types.UpdatePetDocument,
     "\n  mutation DeletePet($id: ID!) {\n    deletePet(id: $id) {\n      id\n      archivedAt\n    }\n  }\n": typeof types.DeletePetDocument,
+    "\n  mutation RestorePet($id: ID!) {\n    restorePet(id: $id) {\n      id\n      archivedAt\n    }\n  }\n": typeof types.RestorePetDocument,
     "\n  fragment AppointmentRow_appointment on Appointment {\n    id\n    startsAt\n    reason\n    status\n    pet {\n      id\n      name\n      species\n      owner {\n        id\n        name\n      }\n    }\n    vet {\n      id\n      name\n    }\n  }\n": typeof types.AppointmentRow_AppointmentFragmentDoc,
     "\n  query DailySchedule($date: Date) {\n    appointments(date: $date) {\n      id\n      ...AppointmentRow_appointment\n    }\n  }\n": typeof types.DailyScheduleDocument,
     "\n  mutation UpdateAppointmentStatus($id: ID!, $status: AppointmentStatus!) {\n    updateAppointmentStatus(id: $id, status: $status) {\n      id\n      status\n    }\n  }\n": typeof types.UpdateAppointmentStatusDocument,
@@ -58,16 +60,18 @@ const documents: Documents = {
     "\n  mutation DeleteAppointment($id: ID!) {\n    deleteAppointment(id: $id) {\n      id\n    }\n  }\n": types.DeleteAppointmentDocument,
     "\n  fragment OwnerForm_owner on Owner {\n    id\n    name\n    email\n    phone\n  }\n": types.OwnerForm_OwnerFragmentDoc,
     "\n  query Owners {\n    owners {\n      id\n      name\n      email\n      phone\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": types.OwnersDocument,
-    "\n  query Owner($id: ID!) {\n    owner(id: $id) {\n      id\n      name\n      email\n      phone\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n": types.OwnerDocument,
+    "\n  query Owner($id: ID!, $includeArchived: Boolean) {\n    owner(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n": types.OwnerDocument,
     "\n  mutation CreateOwner($input: CreateOwnerInput!) {\n    createOwner(input: $input) {\n      id\n      name\n      email\n      phone\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": types.CreateOwnerDocument,
     "\n  mutation UpdateOwner($id: ID!, $input: UpdateOwnerInput!) {\n    updateOwner(id: $id, input: $input) {\n      id\n      name\n      email\n      phone\n    }\n  }\n": types.UpdateOwnerDocument,
     "\n  mutation DeleteOwner($id: ID!) {\n    deleteOwner(id: $id) {\n      id\n      archivedAt\n    }\n  }\n": types.DeleteOwnerDocument,
+    "\n  mutation RestoreOwner($id: ID!) {\n    restoreOwner(id: $id) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": types.RestoreOwnerDocument,
     "\n  fragment PetForm_pet on Pet {\n    id\n    name\n    species\n    breed\n    birthDate\n  }\n": types.PetForm_PetFragmentDoc,
-    "\n  query Pet($id: ID!) {\n    pet(id: $id) {\n      id\n      name\n      species\n      breed\n      birthDate\n      owner {\n        id\n        name\n      }\n      ...PetForm_pet\n    }\n  }\n": types.PetDocument,
-    "\n  query PetAppointments($petId: ID!, $status: AppointmentStatus) {\n    petAppointments(petId: $petId, status: $status) {\n      id\n      startsAt\n      reason\n      status\n      vet {\n        id\n        name\n      }\n    }\n  }\n": types.PetAppointmentsDocument,
+    "\n  query Pet($id: ID!, $includeArchived: Boolean) {\n    pet(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      species\n      breed\n      birthDate\n      archivedAt\n      owner {\n        id\n        name\n      }\n      ...PetForm_pet\n    }\n  }\n": types.PetDocument,
+    "\n  query PetAppointments($petId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {\n    petAppointments(petId: $petId, status: $status, includeArchived: $includeArchived) {\n      id\n      startsAt\n      reason\n      status\n      vet {\n        id\n        name\n      }\n    }\n  }\n": types.PetAppointmentsDocument,
     "\n  mutation CreatePet($input: CreatePetInput!) {\n    createPet(input: $input) {\n      id\n      name\n      species\n      breed\n      archivedAt\n    }\n  }\n": types.CreatePetDocument,
     "\n  mutation UpdatePet($id: ID!, $input: UpdatePetInput!) {\n    updatePet(id: $id, input: $input) {\n      id\n      name\n      species\n      breed\n      birthDate\n    }\n  }\n": types.UpdatePetDocument,
     "\n  mutation DeletePet($id: ID!) {\n    deletePet(id: $id) {\n      id\n      archivedAt\n    }\n  }\n": types.DeletePetDocument,
+    "\n  mutation RestorePet($id: ID!) {\n    restorePet(id: $id) {\n      id\n      archivedAt\n    }\n  }\n": types.RestorePetDocument,
     "\n  fragment AppointmentRow_appointment on Appointment {\n    id\n    startsAt\n    reason\n    status\n    pet {\n      id\n      name\n      species\n      owner {\n        id\n        name\n      }\n    }\n    vet {\n      id\n      name\n    }\n  }\n": types.AppointmentRow_AppointmentFragmentDoc,
     "\n  query DailySchedule($date: Date) {\n    appointments(date: $date) {\n      id\n      ...AppointmentRow_appointment\n    }\n  }\n": types.DailyScheduleDocument,
     "\n  mutation UpdateAppointmentStatus($id: ID!, $status: AppointmentStatus!) {\n    updateAppointmentStatus(id: $id, status: $status) {\n      id\n      status\n    }\n  }\n": types.UpdateAppointmentStatusDocument,
@@ -139,7 +143,7 @@ export function graphql(source: "\n  query Owners {\n    owners {\n      id\n   
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query Owner($id: ID!) {\n    owner(id: $id) {\n      id\n      name\n      email\n      phone\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n"): (typeof documents)["\n  query Owner($id: ID!) {\n    owner(id: $id) {\n      id\n      name\n      email\n      phone\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query Owner($id: ID!, $includeArchived: Boolean) {\n    owner(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n"): (typeof documents)["\n  query Owner($id: ID!, $includeArchived: Boolean) {\n    owner(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -155,15 +159,19 @@ export function graphql(source: "\n  mutation DeleteOwner($id: ID!) {\n    delet
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n  mutation RestoreOwner($id: ID!) {\n    restoreOwner(id: $id) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation RestoreOwner($id: ID!) {\n    restoreOwner(id: $id) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n  fragment PetForm_pet on Pet {\n    id\n    name\n    species\n    breed\n    birthDate\n  }\n"): (typeof documents)["\n  fragment PetForm_pet on Pet {\n    id\n    name\n    species\n    breed\n    birthDate\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query Pet($id: ID!) {\n    pet(id: $id) {\n      id\n      name\n      species\n      breed\n      birthDate\n      owner {\n        id\n        name\n      }\n      ...PetForm_pet\n    }\n  }\n"): (typeof documents)["\n  query Pet($id: ID!) {\n    pet(id: $id) {\n      id\n      name\n      species\n      breed\n      birthDate\n      owner {\n        id\n        name\n      }\n      ...PetForm_pet\n    }\n  }\n"];
+export function graphql(source: "\n  query Pet($id: ID!, $includeArchived: Boolean) {\n    pet(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      species\n      breed\n      birthDate\n      archivedAt\n      owner {\n        id\n        name\n      }\n      ...PetForm_pet\n    }\n  }\n"): (typeof documents)["\n  query Pet($id: ID!, $includeArchived: Boolean) {\n    pet(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      species\n      breed\n      birthDate\n      archivedAt\n      owner {\n        id\n        name\n      }\n      ...PetForm_pet\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query PetAppointments($petId: ID!, $status: AppointmentStatus) {\n    petAppointments(petId: $petId, status: $status) {\n      id\n      startsAt\n      reason\n      status\n      vet {\n        id\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query PetAppointments($petId: ID!, $status: AppointmentStatus) {\n    petAppointments(petId: $petId, status: $status) {\n      id\n      startsAt\n      reason\n      status\n      vet {\n        id\n        name\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query PetAppointments($petId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {\n    petAppointments(petId: $petId, status: $status, includeArchived: $includeArchived) {\n      id\n      startsAt\n      reason\n      status\n      vet {\n        id\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query PetAppointments($petId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {\n    petAppointments(petId: $petId, status: $status, includeArchived: $includeArchived) {\n      id\n      startsAt\n      reason\n      status\n      vet {\n        id\n        name\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -176,6 +184,10 @@ export function graphql(source: "\n  mutation UpdatePet($id: ID!, $input: Update
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation DeletePet($id: ID!) {\n    deletePet(id: $id) {\n      id\n      archivedAt\n    }\n  }\n"): (typeof documents)["\n  mutation DeletePet($id: ID!) {\n    deletePet(id: $id) {\n      id\n      archivedAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation RestorePet($id: ID!) {\n    restorePet(id: $id) {\n      id\n      archivedAt\n    }\n  }\n"): (typeof documents)["\n  mutation RestorePet($id: ID!) {\n    restorePet(id: $id) {\n      id\n      archivedAt\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

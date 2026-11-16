@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@apollo/client/react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 
+import ArchivedBanner from '../../components/ArchivedBanner';
 import ConfirmButton from '../../components/ConfirmButton';
 import ErrorMessage from '../../components/ErrorMessage';
 import NotFound from '../../components/NotFound';
@@ -12,16 +13,19 @@ import { byName, speciesLabel } from '../../lib/format';
 import PetForm from '../pets/PetForm';
 import { CREATE_PET } from '../pets/queries';
 import OwnerForm from './OwnerForm';
-import { DELETE_OWNER, OWNER, UPDATE_OWNER } from './queries';
+import { DELETE_OWNER, OWNER, RESTORE_OWNER, UPDATE_OWNER } from './queries';
 
-/** One owner: contact details (editable), their pets, adding a pet, and archiving. */
+/**
+ * One owner: contact details (editable), their pets, adding a pet, and
+ * archiving. An archived owner is read-only, with a button to restore them.
+ */
 const OwnerPage = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [addingPet, setAddingPet] = useState(false);
 
-  const { data, error } = useQuery(OWNER, { variables: { id } });
+  const { data, error } = useQuery(OWNER, { variables: { id, includeArchived: true } });
   const [updateOwner, updateState] = useMutation(UPDATE_OWNER);
   const [createPet, createPetState] = useMutation(CREATE_PET, {
     // Add the new pet to this owner's cached pets.
@@ -49,6 +53,24 @@ const OwnerPage = () => {
         fields: {
           owners: (existing, { readField }) =>
             existing.filter((owner) => readField('id', owner) !== id),
+        },
+      });
+    },
+  });
+  const [restoreOwner, restoreState] = useMutation(RESTORE_OWNER, {
+    // Restored owners rejoin the owners list.
+    update: (cache, { data: result }) => {
+      const restored = result?.restoreOwner;
+      if (!restored) return;
+
+      cache.modify<OwnersQuery>({
+        fields: {
+          owners: (existing, { readField, toReference }) => {
+            if (existing.some((owner) => readField('id', owner) === id)) return existing;
+
+            const ref = toReference(restored);
+            return ref ? [...existing, ref] : existing;
+          },
         },
       });
     },
@@ -83,6 +105,18 @@ const OwnerPage = () => {
 
       <h1 className="text-2xl font-semibold">{owner.name}</h1>
 
+      {owner.archivedAt && (
+        <ArchivedBanner
+          archivedAt={owner.archivedAt}
+          what="owner"
+          busy={restoreState.loading}
+          error={restoreState.error}
+          onRestore={() => {
+            restoreOwner({ variables: { id } }).catch(() => {});
+          }}
+        />
+      )}
+
       {deleteState.error && (
         <ErrorMessage error={deleteState.error} prefix="Couldn't archive the owner" />
       )}
@@ -111,16 +145,18 @@ const OwnerPage = () => {
             <dt className="text-slate-500">Phone</dt>
             <dd>{owner.phone ?? '—'}</dd>
           </dl>
-          <button type="button" onClick={() => setEditing(true)} className={SECONDARY_BUTTON}>
-            Edit
-          </button>
+          {!owner.archivedAt && (
+            <button type="button" onClick={() => setEditing(true)} className={SECONDARY_BUTTON}>
+              Edit
+            </button>
+          )}
         </div>
       )}
 
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold">Pets</h2>
-          {!addingPet && (
+          {!addingPet && !owner.archivedAt && (
             <button type="button" onClick={() => setAddingPet(true)} className={SECONDARY_BUTTON}>
               Add pet
             </button>
@@ -162,24 +198,28 @@ const OwnerPage = () => {
                 </span>
               </li>
             ))}
-            {/* Archived pets have no page of their own, so they aren't links. */}
             {archivedPets.map(({ id: petId, name, species }) => (
               <li key={petId} className="px-4 py-3 text-slate-400">
-                {name} <span className="text-sm">{speciesLabel(species)} · Archived</span>
+                <Link to={`/pets/${petId}`} className="hover:underline">
+                  {name}
+                </Link>{' '}
+                <span className="text-sm">{speciesLabel(species)} · Archived</span>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      <div className="border-t border-slate-200 pt-4">
-        <ConfirmButton
-          label="Archive owner"
-          question="Archive this owner and their pets, and cancel open visits?"
-          disabled={deleteState.loading}
-          onConfirm={() => void archive()}
-        />
-      </div>
+      {!owner.archivedAt && (
+        <div className="border-t border-slate-200 pt-4">
+          <ConfirmButton
+            label="Archive owner"
+            question="Archive this owner and their pets, and cancel open visits?"
+            disabled={deleteState.loading}
+            onConfirm={() => void archive()}
+          />
+        </div>
+      )}
     </section>
   );
 };
