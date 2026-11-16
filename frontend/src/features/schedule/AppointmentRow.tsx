@@ -18,7 +18,7 @@ const AppointmentRow = ({ appointment, timeZone, busy, onStatusChange }: Props) 
 
   return (
     // Phones: status and actions wrap under the details. Wider: one row.
-    <li className="grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2 px-4 py-3 sm:grid-cols-[5rem_1fr_10rem_auto]">
+    <li className="grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2 px-4 py-3 sm:grid-cols-[5rem_1fr_10rem_16rem]">
       <Link
         to={`/appointments/${id}`}
         aria-label={`Open ${pet.name}'s appointment`}

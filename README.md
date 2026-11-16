@@ -4,9 +4,7 @@ A small veterinary clinic app for managing **owners**, their **pets**, the clini
 
 Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React + Apollo Client** on the front end. The app is deliberately small; the goal is a polished, well-tested example rather than a sprawling one.
 
-> 🚧 **Work in progress.** The back end (data layer and GraphQL API) is done and tested. The React frontend is next. See [Status](#status).
-
-<!-- Screenshot / demo GIF goes here once the frontend is built -->
+![The daily schedule: six visits in the clinic's time zone, each with its status and next actions](docs/screenshots/schedule.png)
 
 ## Features
 
@@ -24,8 +22,9 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 | API | Elixir 1.20, OTP 29, Phoenix 1.8 (API only) |
 | GraphQL | Absinthe 1.12, Absinthe.Phoenix (subscriptions over Phoenix Channels), Dataloader |
 | Database | PostgreSQL 18 via Ecto |
-| Frontend | React, TypeScript, Vite, Apollo Client |
-| Quality | ExUnit with Faker, ExCoveralls (90% minimum), Credo (strict), Dialyzer, `mix format`, compile with warnings as errors, dependency audits (`mix hex.audit`, `npm audit`) |
+| Frontend | React 19, TypeScript 7 (strict), Vite 8, Apollo Client 4, React Router 7, Tailwind CSS 4, GraphQL Codegen |
+| Back-end quality | ExUnit with Faker, ExCoveralls (90% minimum), Credo (strict), Dialyzer, `mix format`, compile with warnings as errors, `mix hex.audit` |
+| Front-end quality | Vitest + Testing Library (90% minimum on lines, statements, functions and branches), Playwright end-to-end tests, oxlint, Prettier, `npm audit` |
 
 ## Status
 
@@ -39,7 +38,8 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 - [x] GraphQL schema: queries, mutations, `appointmentChanged` subscription
 - [x] ExUnit tests for the domain layer (schemas, contexts, Clinic API)
 - [x] ExUnit tests for the GraphQL API over HTTP and the subscription socket
-- [ ] React + Apollo frontend
+- [x] React + Apollo frontend: live schedule, booking, appointment, owner, pet and vet pages
+- [x] Component tests (Vitest) and end-to-end tests (Playwright)
 - [ ] Deployment
 
 ## GraphQL API
@@ -103,6 +103,24 @@ Nested fields such as `owners { pets { appointments { vet { name } } } }` are ba
 }
 ```
 
+## Frontend
+
+| Route | Page |
+|---|---|
+| `/` | Daily schedule, kept live: check in, complete or cancel visits. The day is in the URL (`?date=`). |
+| `/appointments/new` | Booking: owner, then their pet, vet, time and reason |
+| `/appointments/:id` | One visit: status, reschedule or change vet while scheduled, delete |
+| `/owners`, `/owners/:id` | Owners and their pets: add, edit, archive |
+| `/pets/:id` | A pet's details and visit history, filtered by status |
+| `/vets`, `/vets/:id` | Vets and a vet's schedule for any day |
+
+A few decisions worth calling out:
+
+- **Live updates over Absinthe's channel protocol.** Absinthe runs subscriptions over Phoenix Channels, not `graphql-ws`, and the community Apollo link for it targets Apollo Client 3. So [`absintheLink.ts`](frontend/src/apollo/absintheLink.ts) is a small custom Apollo link on top of the `phoenix` socket, with tests, including unsubscribing when a component unmounts before the server has replied. When `appointmentChanged` fires, the schedule refetches the day it shows.
+- **Typed end to end.** `schema.graphql` is exported from the backend and committed, and GraphQL Codegen generates TypeScript types for every query, mutation and fragment from it. Components declare their data as colocated fragments. Renaming a field in the API breaks `tsc`, not the running app, and `npm run check` fails if the generated types are stale.
+- **The clinic's time zone, not the browser's.** The API exposes `clinicTimeZone`, and the UI shows and enters times in it, so "today" means the same day on the schedule and in the API wherever the browser is.
+- **Cache-first, with clear rules.** Every object is normalized by `id`, so a status change updates every view of that visit. New owners, pets and vets go straight into the cached lists, while lists the server filters (a day's schedule, a pet's history) are refetched.
+
 ## Getting started
 
 ### Prerequisites
@@ -126,7 +144,18 @@ mix setup
 mix phx.server
 ```
 
-Then open http://localhost:4000/api/graphiql to explore the API. Try `{ appointments { startsAt reason pet { name } vet { name } } }`.
+In a second terminal:
+
+```bash
+# Start the frontend on http://localhost:5173
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173 for the app. To see live updates, open the schedule in two windows and check in a visit in one. The API also has a GraphiQL explorer at http://localhost:4000/api/graphiql; try `{ appointments { startsAt reason pet { name } vet { name } } }`.
+
+The seed data puts a busy day of visits on the day you run `mix setup`.
 
 ### Configuration
 
@@ -147,6 +176,14 @@ mix precommit         # compile with warnings as errors, hex.audit, format, cred
 mix coveralls.html    # browsable coverage report in cover/excoveralls.html
 ```
 
+```bash
+cd frontend
+npm run check         # npm audit, codegen check, tsc, oxlint, prettier, Vitest + 90% coverage
+npm run e2e           # Playwright against the running app (starts Phoenix and Vite if needed)
+```
+
+After changing the GraphQL API, run `npm run schema` then `npm run codegen` in `frontend/` to update the types.
+
 ## Project structure
 
 ```
@@ -160,7 +197,14 @@ vet-clinic/
 │   │   └── resolvers/        # Thin resolvers that call the Clinic API
 │   ├── priv/repo/            # Migrations and seeds
 │   └── test/                 # Domain tests, plus GraphQL tests over HTTP and the socket
-└── frontend/                 # React + Apollo (coming soon)
+├── frontend/                 # React + Apollo
+│   ├── schema.graphql        # API schema, exported from the backend for codegen
+│   ├── src/apollo/           # Apollo client and the Absinthe subscription link
+│   ├── src/features/         # Pages by area, each with its queries.ts and tests
+│   ├── src/components/       # Shared UI: layout, forms, status badge, confirm button
+│   ├── src/gql/              # Generated types (not edited by hand)
+│   └── e2e/                  # Playwright specs
+└── docs/screenshots/
 ```
 
 ## Built with Claude Code
@@ -169,7 +213,7 @@ This project was built with [Claude Code](https://claude.com/claude-code), Anthr
 
 Some of what that looked like:
 
-- **Project rules in [`CLAUDE.md`](CLAUDE.md).** It holds the Elixir style guide, architecture boundaries (no Ecto in the web layer, thin resolvers) and the `mix precommit` check that every change has to pass.
+- **Project rules in [`CLAUDE.md`](CLAUDE.md).** It holds the Elixir and React conventions, architecture boundaries (no Ecto in the web layer, thin resolvers, Apollo cache rules) and the `mix precommit` and `npm run check` gates every change has to pass. The Elixir style rules a linter can check are enforced by Credo instead of only written down.
 - **Plan first.** The plan was written and approved in plan mode before any code was generated.
 - **Manual approval.** Every file edit and command was reviewed and approved individually.
 - **Attributed commits.** Commits written with Claude carry a `Co-Authored-By` trailer.
