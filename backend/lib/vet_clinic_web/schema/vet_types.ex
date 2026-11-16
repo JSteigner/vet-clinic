@@ -31,32 +31,32 @@ defmodule VetClinicWeb.Schema.VetTypes do
   object :vet_queries do
     @desc "All vets, ordered by name."
     field :vets, non_null(list_of(non_null(:vet))) do
-      resolve(&Vets.list_vets/3)
+      resolve &Vets.list_vets/3
     end
 
     @desc "A vet by ID."
     field :vet, :vet do
-      arg(:id, non_null(:id))
-      resolve(&Vets.get_vet/3)
+      arg :id, non_null(:id)
+      resolve &Vets.get_vet/3
     end
   end
 
   object :vet_mutations do
     field :create_vet, :vet do
-      arg(:input, non_null(:create_vet_input))
-      resolve(&Vets.create_vet/3)
+      arg :input, non_null(:create_vet_input)
+      resolve &Vets.create_vet/3
     end
 
     field :update_vet, :vet do
-      arg(:id, non_null(:id))
-      arg(:input, non_null(:update_vet_input))
-      resolve(&Vets.update_vet/3)
+      arg :id, non_null(:id)
+      arg :input, non_null(:update_vet_input)
+      resolve &Vets.update_vet/3
     end
 
     @desc "Deletes a vet. Fails while the vet still has appointments."
     field :delete_vet, :vet do
-      arg(:id, non_null(:id))
-      resolve(&Vets.delete_vet/3)
+      arg :id, non_null(:id)
+      resolve &Vets.delete_vet/3
     end
   end
 end

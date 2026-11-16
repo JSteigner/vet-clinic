@@ -38,39 +38,39 @@ defmodule VetClinicWeb.Schema.OwnerTypes do
   object :owner_queries do
     @desc "Active owners, ordered by name."
     field :owners, non_null(list_of(non_null(:owner))) do
-      resolve(&Owners.list_owners/3)
+      resolve &Owners.list_owners/3
     end
 
     @desc "An active owner by ID, or an archived one with includeArchived."
     field :owner, :owner do
-      arg(:id, non_null(:id))
-      arg(:include_archived, :boolean, default_value: false)
-      resolve(&Owners.get_owner/3)
+      arg :id, non_null(:id)
+      arg :include_archived, :boolean, default_value: false
+      resolve &Owners.get_owner/3
     end
 
     @desc "The owner of a pet."
     field :pet_owner, :owner do
-      arg(:pet_id, non_null(:id))
-      resolve(&Owners.get_pet_owner/3)
+      arg :pet_id, non_null(:id)
+      resolve &Owners.get_pet_owner/3
     end
   end
 
   object :owner_mutations do
     field :create_owner, :owner do
-      arg(:input, non_null(:create_owner_input))
-      resolve(&Owners.create_owner/3)
+      arg :input, non_null(:create_owner_input)
+      resolve &Owners.create_owner/3
     end
 
     field :update_owner, :owner do
-      arg(:id, non_null(:id))
-      arg(:input, non_null(:update_owner_input))
-      resolve(&Owners.update_owner/3)
+      arg :id, non_null(:id)
+      arg :input, non_null(:update_owner_input)
+      resolve &Owners.update_owner/3
     end
 
     @desc "Archives the owner and their pets, and cancels open appointments."
     field :delete_owner, :owner do
-      arg(:id, non_null(:id))
-      resolve(&Owners.delete_owner/3)
+      arg :id, non_null(:id)
+      resolve &Owners.delete_owner/3
     end
 
     @desc """
@@ -78,8 +78,8 @@ defmodule VetClinicWeb.Schema.OwnerTypes do
     appointments stay cancelled.
     """
     field :restore_owner, :owner do
-      arg(:id, non_null(:id))
-      resolve(&Owners.restore_owner/3)
+      arg :id, non_null(:id)
+      resolve &Owners.restore_owner/3
     end
   end
 end

@@ -12,10 +12,10 @@ defmodule VetClinicWeb.Schema.AppointmentTypes do
   alias VetClinicWeb.Resolvers.Appointments
 
   enum :appointment_status do
-    value(:scheduled)
-    value(:checked_in)
-    value(:completed)
-    value(:cancelled)
+    value :scheduled
+    value :checked_in
+    value :completed
+    value :cancelled
   end
 
   object :appointment do
@@ -55,21 +55,21 @@ defmodule VetClinicWeb.Schema.AppointmentTypes do
     ordered by start time. Defaults to today.
     """
     field :appointments, non_null(list_of(non_null(:appointment))) do
-      arg(:date, :date)
-      resolve(&Appointments.list_daily_clinic_appointments/3)
+      arg :date, :date
+      resolve &Appointments.list_daily_clinic_appointments/3
     end
 
     @desc "An appointment by ID."
     field :appointment, :appointment do
-      arg(:id, non_null(:id))
-      resolve(&Appointments.get_appointment/3)
+      arg :id, non_null(:id)
+      resolve &Appointments.get_appointment/3
     end
 
     @desc "A vet's appointments, ordered by start time, optionally for one date."
     field :vet_appointments, non_null(list_of(non_null(:appointment))) do
-      arg(:vet_id, non_null(:id))
-      arg(:date, :date)
-      resolve(&Appointments.list_vet_appointments/3)
+      arg :vet_id, non_null(:id)
+      arg :date, :date
+      resolve &Appointments.list_vet_appointments/3
     end
 
     @desc """
@@ -77,47 +77,46 @@ defmodule VetClinicWeb.Schema.AppointmentTypes do
     COMPLETED for history or SCHEDULED for upcoming visits.
     """
     field :pet_appointments, non_null(list_of(non_null(:appointment))) do
-      arg(:pet_id, non_null(:id))
-      arg(:status, :appointment_status)
-      arg(:include_archived, :boolean, default_value: false)
-      resolve(&Appointments.list_pet_appointments/3)
+      arg :pet_id, non_null(:id)
+      arg :status, :appointment_status
+      arg :include_archived, :boolean, default_value: false
+      resolve &Appointments.list_pet_appointments/3
     end
   end
 
   object :appointment_mutations do
     @desc "Book an appointment for a pet with a vet. Must be in the future."
     field :create_appointment, :appointment do
-      arg(:input, non_null(:create_appointment_input))
-      resolve(&Appointments.create_appointment/3)
+      arg :input, non_null(:create_appointment_input)
+      resolve &Appointments.create_appointment/3
     end
 
     field :update_appointment, :appointment do
-      arg(:id, non_null(:id))
-      arg(:input, non_null(:update_appointment_input))
-      resolve(&Appointments.update_appointment/3)
+      arg :id, non_null(:id)
+      arg :input, non_null(:update_appointment_input)
+      resolve &Appointments.update_appointment/3
     end
 
     field :update_appointment_status, :appointment do
-      arg(:id, non_null(:id))
-      arg(:status, non_null(:appointment_status))
-      resolve(&Appointments.update_appointment_status/3)
+      arg :id, non_null(:id)
+      arg :status, non_null(:appointment_status)
+      resolve &Appointments.update_appointment_status/3
     end
 
     @desc "Deletes an appointment booked by mistake. Prefer cancelling it."
     field :delete_appointment, :appointment do
-      arg(:id, non_null(:id))
-      resolve(&Appointments.delete_appointment/3)
+      arg :id, non_null(:id)
+      resolve &Appointments.delete_appointment/3
     end
   end
 
   object :appointment_subscriptions do
     @desc "Fires when an appointment is booked, rescheduled or changes status."
     field :appointment_changed, non_null(:appointment) do
-      config(fn _args, _resolution -> {:ok, topic: "appointments"} end)
+      config fn _args, _resolution -> {:ok, topic: "appointments"} end
 
-      trigger([:create_appointment, :update_appointment, :update_appointment_status],
+      trigger [:create_appointment, :update_appointment, :update_appointment_status],
         topic: fn _appointment -> "appointments" end
-      )
     end
   end
 end
