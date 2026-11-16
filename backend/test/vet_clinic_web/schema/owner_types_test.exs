@@ -103,4 +103,40 @@ defmodule VetClinicWeb.Schema.OwnerTypesTest do
       assert Clinic.get_owner(owner.id) == nil
     end
   end
+
+  describe "owner query with includeArchived" do
+    @query """
+    query ($id: ID!, $includeArchived: Boolean) {
+      owner(id: $id, includeArchived: $includeArchived) { id archivedAt }
+    }
+    """
+
+    test "finds an archived owner only when asked", %{conn: conn} do
+      {:ok, owner} = Clinic.delete_owner(owner_fixture())
+
+      assert %{"errors" => [%{"message" => "owner not found"}]} =
+               graphql(conn, @query, %{id: owner.id})
+
+      assert %{"data" => %{"owner" => %{"archivedAt" => archived_at}}} =
+               graphql(conn, @query, %{id: owner.id, includeArchived: true})
+
+      assert archived_at
+    end
+  end
+
+  describe "restoreOwner mutation" do
+    test "restores the owner and their pets", %{conn: conn} do
+      pet = pet_fixture()
+      {:ok, owner} = Clinic.delete_owner(Clinic.get_owner(pet.owner_id))
+
+      mutation = """
+      mutation ($id: ID!) { restoreOwner(id: $id) { archivedAt pets { archivedAt } } }
+      """
+
+      assert %{"data" => %{"restoreOwner" => restored}} =
+               graphql(conn, mutation, %{id: owner.id})
+
+      assert restored == %{"archivedAt" => nil, "pets" => [%{"archivedAt" => nil}]}
+    end
+  end
 end

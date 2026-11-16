@@ -1,6 +1,7 @@
 defmodule VetClinic.Pets.PetTest do
   use VetClinic.DataCase, async: true
 
+  alias VetClinic.Owners.Owner
   alias VetClinic.Pets.Pet
 
   describe "changeset/2" do
@@ -32,6 +33,25 @@ defmodule VetClinic.Pets.PetTest do
       changeset = Pet.changeset(%Pet{}, attrs)
 
       refute Map.has_key?(changeset.changes, :archived_at)
+    end
+  end
+
+  describe "restore_changeset/1" do
+    test "clears archived_at when the owner is active" do
+      pet = %Pet{archived_at: ~U[2026-01-02 03:04:05Z], owner: %Owner{archived_at: nil}}
+      changeset = Pet.restore_changeset(pet)
+
+      assert changeset.valid?
+      assert changeset.changes == %{archived_at: nil}
+    end
+
+    test "is refused while the owner is archived" do
+      archived = ~U[2026-01-02 03:04:05Z]
+
+      changeset =
+        Pet.restore_changeset(%Pet{archived_at: archived, owner: %Owner{archived_at: archived}})
+
+      assert %{owner: ["is archived; restore the owner first"]} = errors_on(changeset)
     end
   end
 

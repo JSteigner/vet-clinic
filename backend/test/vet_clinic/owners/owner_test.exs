@@ -31,11 +31,25 @@ defmodule VetClinic.Owners.OwnerTest do
     end
   end
 
-  describe "archive_changeset/1" do
-    test "sets archived_at" do
+  describe "archive_changeset/2" do
+    test "sets archived_at, to now by default" do
       changeset = Owner.archive_changeset(%Owner{})
 
       assert %DateTime{} = get_change(changeset, :archived_at)
+    end
+
+    test "uses the given time" do
+      at = ~U[2026-01-02 03:04:05Z]
+
+      assert get_change(Owner.archive_changeset(%Owner{}, at), :archived_at) == at
+    end
+  end
+
+  describe "restore_changeset/1" do
+    test "clears archived_at" do
+      changeset = Owner.restore_changeset(%Owner{archived_at: ~U[2026-01-02 03:04:05Z]})
+
+      assert changeset.changes == %{archived_at: nil}
     end
   end
 

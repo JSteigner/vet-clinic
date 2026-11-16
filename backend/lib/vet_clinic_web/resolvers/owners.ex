@@ -15,8 +15,8 @@ defmodule VetClinicWeb.Resolvers.Owners do
   end
 
   @spec get_owner(term(), map(), Resolution.t()) :: Helpers.result(Owner.t())
-  def get_owner(_parent, %{id: id}, _resolution) do
-    Helpers.fetch(id, &Clinic.get_owner/1, "owner")
+  def get_owner(_parent, %{id: id, include_archived: include_archived}, _resolution) do
+    Helpers.fetch(id, &Clinic.get_owner(&1, include_archived: include_archived), "owner")
   end
 
   @spec get_pet_owner(term(), map(), Resolution.t()) :: Helpers.result(Owner.t())
@@ -40,6 +40,14 @@ defmodule VetClinicWeb.Resolvers.Owners do
   def delete_owner(_parent, %{id: id}, _resolution) do
     with {:ok, owner} <- Helpers.fetch(id, &Clinic.get_owner/1, "owner") do
       Clinic.delete_owner(owner)
+    end
+  end
+
+  @spec restore_owner(term(), map(), Resolution.t()) :: Helpers.result(Owner.t())
+  def restore_owner(_parent, %{id: id}, _resolution) do
+    with {:ok, owner} <-
+           Helpers.fetch(id, &Clinic.get_owner(&1, include_archived: true), "owner") do
+      Clinic.restore_owner(owner)
     end
   end
 end

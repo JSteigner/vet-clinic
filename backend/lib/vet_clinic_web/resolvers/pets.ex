@@ -10,8 +10,8 @@ defmodule VetClinicWeb.Resolvers.Pets do
   alias VetClinicWeb.Resolvers.Helpers
 
   @spec get_pet(term(), map(), Resolution.t()) :: Helpers.result(Pet.t())
-  def get_pet(_parent, %{id: id}, _resolution) do
-    Helpers.fetch(id, &Clinic.get_pet/1, "pet")
+  def get_pet(_parent, %{id: id, include_archived: include_archived}, _resolution) do
+    Helpers.fetch(id, &Clinic.get_pet(&1, include_archived: include_archived), "pet")
   end
 
   @spec list_owner_pets(term(), map(), Resolution.t()) :: Helpers.result([Pet.t()])
@@ -37,6 +37,13 @@ defmodule VetClinicWeb.Resolvers.Pets do
   def delete_pet(_parent, %{id: id}, _resolution) do
     with {:ok, pet} <- Helpers.fetch(id, &Clinic.get_pet/1, "pet") do
       Clinic.delete_pet(pet)
+    end
+  end
+
+  @spec restore_pet(term(), map(), Resolution.t()) :: Helpers.result(Pet.t())
+  def restore_pet(_parent, %{id: id}, _resolution) do
+    with {:ok, pet} <- Helpers.fetch(id, &Clinic.get_pet(&1, include_archived: true), "pet") do
+      Clinic.restore_pet(pet)
     end
   end
 end

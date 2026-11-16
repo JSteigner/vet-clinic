@@ -39,7 +39,9 @@ defmodule VetClinicWeb.Resolvers.Appointments do
   @spec list_pet_appointments(term(), map(), Resolution.t()) ::
           Helpers.result([Appointment.t()])
   def list_pet_appointments(_parent, %{pet_id: pet_id} = args, _resolution) do
-    with {:ok, pet} <- Helpers.fetch(pet_id, &Clinic.get_pet/1, "pet") do
+    get_pet = &Clinic.get_pet(&1, include_archived: args.include_archived)
+
+    with {:ok, pet} <- Helpers.fetch(pet_id, get_pet, "pet") do
       {:ok, Clinic.list_pet_appointments(pet.id, filters(args, [:status]))}
     end
   end

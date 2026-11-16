@@ -16,6 +16,32 @@ defmodule VetClinic.PetsTest do
 
       assert Pets.get_pet(pet.id) == nil
     end
+
+    test "finds an archived pet with include_archived" do
+      {:ok, pet} = Pets.delete_pet(pet_fixture())
+
+      assert Pets.get_pet(pet.id, include_archived: true).id == pet.id
+    end
+  end
+
+  describe "restore_pet/1" do
+    test "restores an archived pet" do
+      {:ok, pet} = Pets.delete_pet(pet_fixture())
+
+      assert {:ok, restored} = Pets.restore_pet(pet)
+      assert restored.archived_at == nil
+      assert Pets.get_pet(pet.id)
+    end
+
+    test "is refused while the owner is archived" do
+      pet = pet_fixture()
+      {:ok, _owner} = Owners.delete_owner(Owners.get_owner(pet.owner_id))
+      archived_pet = Pets.get_pet(pet.id, include_archived: true)
+
+      assert {:error, changeset} = Pets.restore_pet(archived_pet)
+      assert %{owner: ["is archived; restore the owner first"]} = errors_on(changeset)
+      assert Repo.reload!(pet).archived_at
+    end
   end
 
   describe "list_owner_pets/1" do

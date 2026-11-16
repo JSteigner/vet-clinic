@@ -31,8 +31,8 @@ defmodule VetClinic.Clinic do
   @spec list_owners() :: [Owner.t()]
   defdelegate list_owners(), to: Owners
 
-  @spec get_owner(integer()) :: Owner.t() | nil
-  defdelegate get_owner(id), to: Owners
+  @spec get_owner(integer(), include_archived: boolean()) :: Owner.t() | nil
+  defdelegate get_owner(id, opts \\ []), to: Owners
 
   @spec get_pet_owner(integer()) :: Owner.t() | nil
   defdelegate get_pet_owner(pet_id), to: Owners
@@ -46,10 +46,13 @@ defmodule VetClinic.Clinic do
   @spec delete_owner(Owner.t()) :: {:ok, Owner.t()} | {:error, Changeset.t()}
   defdelegate delete_owner(owner), to: Owners
 
+  @spec restore_owner(Owner.t()) :: {:ok, Owner.t()} | {:error, Changeset.t()}
+  defdelegate restore_owner(owner), to: Owners
+
   ## Pets
 
-  @spec get_pet(integer()) :: Pet.t() | nil
-  defdelegate get_pet(id), to: Pets
+  @spec get_pet(integer(), include_archived: boolean()) :: Pet.t() | nil
+  defdelegate get_pet(id, opts \\ []), to: Pets
 
   @spec list_owner_pets(integer()) :: [Pet.t()]
   defdelegate list_owner_pets(owner_id), to: Pets
@@ -62,6 +65,9 @@ defmodule VetClinic.Clinic do
 
   @spec delete_pet(Pet.t()) :: {:ok, Pet.t()} | {:error, Changeset.t()}
   defdelegate delete_pet(pet), to: Pets
+
+  @spec restore_pet(Pet.t()) :: {:ok, Pet.t()} | {:error, Changeset.t()}
+  defdelegate restore_pet(pet), to: Pets
 
   ## Vets
 

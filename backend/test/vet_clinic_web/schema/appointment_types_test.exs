@@ -105,6 +105,23 @@ defmodule VetClinicWeb.Schema.AppointmentTypesTest do
       assert %{"errors" => [%{"message" => "pet not found"}]} =
                graphql(conn, @query, %{petId: "-1"})
     end
+
+    test "shows an archived pet's history with includeArchived", %{conn: conn} do
+      past = past_appointment_fixture()
+      {:ok, _pet} = Clinic.delete_pet(Clinic.get_pet(past.pet_id))
+
+      query = """
+      query ($petId: ID!) { petAppointments(petId: $petId, includeArchived: true) { id } }
+      """
+
+      assert %{"errors" => [%{"message" => "pet not found"}]} =
+               graphql(conn, @query, %{petId: past.pet_id})
+
+      assert %{"data" => %{"petAppointments" => [%{"id" => id}]}} =
+               graphql(conn, query, %{petId: past.pet_id})
+
+      assert id == "#{past.id}"
+    end
   end
 
   describe "createAppointment mutation" do

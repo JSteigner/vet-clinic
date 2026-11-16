@@ -79,6 +79,7 @@ defmodule VetClinicWeb.Schema.AppointmentTypes do
     field :pet_appointments, non_null(list_of(non_null(:appointment))) do
       arg(:pet_id, non_null(:id))
       arg(:status, :appointment_status)
+      arg(:include_archived, :boolean, default_value: false)
       resolve(&Appointments.list_pet_appointments/3)
     end
   end

@@ -29,6 +29,12 @@ defmodule VetClinic.OwnersTest do
     test "returns nil for an unknown id" do
       assert Owners.get_owner(-1) == nil
     end
+
+    test "finds an archived owner with include_archived" do
+      {:ok, owner} = Owners.delete_owner(owner_fixture())
+
+      assert Owners.get_owner(owner.id, include_archived: true).id == owner.id
+    end
   end
 
   describe "get_pet_owner/1" do
@@ -96,11 +102,11 @@ defmodule VetClinic.OwnersTest do
       }
     end
 
-    test "archives the owner and their pets", %{owner: owner, pet: pet} do
+    test "archives the owner and their pets at the same time", %{owner: owner, pet: pet} do
       assert {:ok, archived} = Owners.delete_owner(owner)
       assert archived.archived_at
 
-      assert Repo.reload!(pet).archived_at
+      assert Repo.reload!(pet).archived_at == archived.archived_at
     end
 
     test "cancels open appointments but keeps completed ones", context do
@@ -119,6 +125,53 @@ defmodule VetClinic.OwnersTest do
 
       refute Repo.reload!(other_pet).archived_at
       assert Repo.reload!(other_appointment).status == :scheduled
+    end
+  end
+
+  describe "restore_owner/1" do
+    setup do
+      owner = owner_fixture()
+      pet = pet_fixture(%{owner_id: owner.id})
+      # Archived on its own, earlier than the owner.
+      earlier_pet =
+        %{owner_id: owner.id}
+        |> pet_fixture()
+        |> Ecto.Changeset.change(archived_at: ~U[2026-01-01 00:00:00Z])
+        |> Repo.update!()
+
+      appointment = appointment_fixture(%{pet_id: pet.id})
+      {:ok, archived} = Owners.delete_owner(owner)
+
+      %{owner: archived, pet: pet, earlier_pet: earlier_pet, appointment: appointment}
+    end
+
+    test "restores the owner and the pets archived with them", %{owner: owner, pet: pet} do
+      assert {:ok, restored} = Owners.restore_owner(owner)
+      assert restored.archived_at == nil
+
+      assert Repo.reload!(pet).archived_at == nil
+      assert Owners.get_owner(owner.id)
+    end
+
+    test "leaves pets archived earlier on their own archived", context do
+      {:ok, _} = Owners.restore_owner(context.owner)
+
+      assert Repo.reload!(context.earlier_pet).archived_at == ~U[2026-01-01 00:00:00Z]
+    end
+
+    test "leaves cancelled appointments cancelled", context do
+      {:ok, _} = Owners.restore_owner(context.owner)
+
+      assert Repo.reload!(context.appointment).status == :cancelled
+    end
+
+    test "does nothing to an active owner's pets" do
+      owner = owner_fixture()
+      pet = pet_fixture(%{owner_id: owner.id})
+
+      assert {:ok, restored} = Owners.restore_owner(owner)
+      assert restored.archived_at == nil
+      assert Repo.reload!(pet).archived_at == nil
     end
   end
 end

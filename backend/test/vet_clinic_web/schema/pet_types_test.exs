@@ -106,4 +106,35 @@ defmodule VetClinicWeb.Schema.PetTypesTest do
       assert Clinic.get_appointment(appointment.id).status == :cancelled
     end
   end
+
+  describe "pet query with includeArchived" do
+    test "finds an archived pet when asked", %{conn: conn} do
+      {:ok, pet} = Clinic.delete_pet(pet_fixture())
+      query = "query ($id: ID!) { pet(id: $id, includeArchived: true) { archivedAt } }"
+
+      assert %{"data" => %{"pet" => %{"archivedAt" => archived_at}}} =
+               graphql(conn, query, %{id: pet.id})
+
+      assert archived_at
+    end
+  end
+
+  describe "restorePet mutation" do
+    @mutation "mutation ($id: ID!) { restorePet(id: $id) { archivedAt } }"
+
+    test "restores an archived pet", %{conn: conn} do
+      {:ok, pet} = Clinic.delete_pet(pet_fixture())
+
+      assert %{"data" => %{"restorePet" => %{"archivedAt" => nil}}} =
+               graphql(conn, @mutation, %{id: pet.id})
+    end
+
+    test "is refused while the owner is archived", %{conn: conn} do
+      pet = pet_fixture()
+      {:ok, _owner} = Clinic.delete_owner(Clinic.get_owner(pet.owner_id))
+
+      assert %{"errors" => [error]} = graphql(conn, @mutation, %{id: pet.id})
+      assert error["message"] == "owner is archived; restore the owner first"
+    end
+  end
 end

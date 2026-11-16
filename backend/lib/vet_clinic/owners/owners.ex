@@ -2,7 +2,8 @@ defmodule VetClinic.Owners do
   @moduledoc """
   Owners: the clinic's clients. Called through `VetClinic.Clinic`.
 
-  Owners are soft-deleted (archived), and lookups skip archived owners.
+  Owners are soft-deleted (archived). Lookups skip archived owners unless
+  asked to include them, and archived owners can be restored.
   """
 
   import Ecto.Query, warn: false
@@ -23,10 +24,14 @@ defmodule VetClinic.Owners do
     |> Repo.all()
   end
 
-  @spec get_owner(integer()) :: Owner.t() | nil
-  def get_owner(id) do
+  @doc """
+  An active owner by ID, or `nil`. Pass `include_archived: true` to also
+  find archived owners.
+  """
+  @spec get_owner(integer(), include_archived: boolean()) :: Owner.t() | nil
+  def get_owner(id, opts \\ []) do
     Owner
-    |> active()
+    |> maybe_active(opts[:include_archived])
     |> Repo.get(id)
   end
 
@@ -61,18 +66,40 @@ defmodule VetClinic.Owners do
   """
   @spec delete_owner(Owner.t()) :: {:ok, Owner.t()} | {:error, Changeset.t()}
   def delete_owner(%Owner{} = owner) do
+    archived_at = DateTime.truncate(DateTime.utc_now(), :second)
+
     # Dialyzer flags this pipeline (call_without_opaque) because of an
     # Ecto.Multi.new/0 + OTP 29 false positive; see .dialyzer_ignore.exs.
     Multi.new()
     |> Appointments.cancel_open_appointments(Pets.owner_pet_ids_query(owner.id))
-    |> Pets.archive_owner_pets(owner.id)
-    |> Multi.update(:owner, Owner.archive_changeset(owner))
+    |> Pets.archive_owner_pets(owner.id, archived_at)
+    |> Multi.update(:owner, Owner.archive_changeset(owner, archived_at))
     |> Repo.transact()
     |> case do
       {:ok, %{owner: owner}} -> {:ok, owner}
       {:error, _step, changeset, _changes} -> {:error, changeset}
     end
   end
+
+  @doc """
+  Restores an archived owner, and the pets archived with them (same archive
+  time), in one transaction. Pets archived on their own earlier stay archived,
+  and appointments cancelled by the archive stay cancelled.
+  """
+  @spec restore_owner(Owner.t()) :: {:ok, Owner.t()} | {:error, Changeset.t()}
+  def restore_owner(%Owner{} = owner) do
+    Multi.new()
+    |> Pets.restore_owner_pets(owner.id, owner.archived_at)
+    |> Multi.update(:owner, Owner.restore_changeset(owner))
+    |> Repo.transact()
+    |> case do
+      {:ok, %{owner: owner}} -> {:ok, owner}
+      {:error, _step, changeset, _changes} -> {:error, changeset}
+    end
+  end
+
+  defp maybe_active(query, true = _include_archived), do: query
+  defp maybe_active(query, _include_archived), do: active(query)
 
   defp active(query), do: where(query, [o], is_nil(o.archived_at))
 end

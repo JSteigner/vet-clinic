@@ -63,4 +63,23 @@ defmodule VetClinic.Pets.Pet do
   def archive_changeset(pet) do
     change(pet, archived_at: DateTime.truncate(DateTime.utc_now(), :second))
   end
+
+  @doc """
+  Restores an archived pet. Expects the owner preloaded, and refuses while
+  the owner is archived: an active pet can't belong to an archived owner.
+  """
+  @spec restore_changeset(t()) :: Changeset.t()
+  def restore_changeset(pet) do
+    pet
+    |> change(archived_at: nil)
+    |> validate_owner_active()
+  end
+
+  defp validate_owner_active(
+         %Changeset{data: %{owner: %Owner{archived_at: %DateTime{}}}} = changeset
+       ) do
+    add_error(changeset, :owner, "is archived; restore the owner first")
+  end
+
+  defp validate_owner_active(changeset), do: changeset
 end

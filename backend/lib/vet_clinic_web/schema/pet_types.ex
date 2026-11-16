@@ -49,9 +49,10 @@ defmodule VetClinicWeb.Schema.PetTypes do
   end
 
   object :pet_queries do
-    @desc "An active pet by ID."
+    @desc "An active pet by ID, or an archived one with includeArchived."
     field :pet, :pet do
       arg(:id, non_null(:id))
+      arg(:include_archived, :boolean, default_value: false)
       resolve(&Pets.get_pet/3)
     end
 
@@ -78,6 +79,12 @@ defmodule VetClinicWeb.Schema.PetTypes do
     field :delete_pet, :pet do
       arg(:id, non_null(:id))
       resolve(&Pets.delete_pet/3)
+    end
+
+    @desc "Restores an archived pet. Refused while its owner is archived."
+    field :restore_pet, :pet do
+      arg(:id, non_null(:id))
+      resolve(&Pets.restore_pet/3)
     end
   end
 end

@@ -41,9 +41,10 @@ defmodule VetClinicWeb.Schema.OwnerTypes do
       resolve(&Owners.list_owners/3)
     end
 
-    @desc "An active owner by ID."
+    @desc "An active owner by ID, or an archived one with includeArchived."
     field :owner, :owner do
       arg(:id, non_null(:id))
+      arg(:include_archived, :boolean, default_value: false)
       resolve(&Owners.get_owner/3)
     end
 
@@ -70,6 +71,15 @@ defmodule VetClinicWeb.Schema.OwnerTypes do
     field :delete_owner, :owner do
       arg(:id, non_null(:id))
       resolve(&Owners.delete_owner/3)
+    end
+
+    @desc """
+    Restores an archived owner and the pets archived with them. Cancelled
+    appointments stay cancelled.
+    """
+    field :restore_owner, :owner do
+      arg(:id, non_null(:id))
+      resolve(&Owners.restore_owner/3)
     end
   end
 end
