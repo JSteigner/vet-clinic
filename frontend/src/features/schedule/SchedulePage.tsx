@@ -51,7 +51,7 @@ const SchedulePage = () => {
           {date && <p className="text-slate-500">{formatDate(date)}</p>}
         </div>
         {date && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               aria-label="Previous day"
@@ -87,7 +87,10 @@ const SchedulePage = () => {
               onChange={(event) => event.target.value && goTo(event.target.value)}
               className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm"
             />
-            <Link to={`/appointments/new?date=${date}`} className={PRIMARY_BUTTON}>
+            <Link
+              to={`/appointments/new?date=${date}`}
+              className={`${PRIMARY_BUTTON} whitespace-nowrap`}
+            >
               Book appointment
             </Link>
           </div>
