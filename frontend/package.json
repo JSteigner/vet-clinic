@@ -11,7 +11,7 @@
     "test": "vitest",
     "schema": "cd ../backend && mix absinthe.schema.sdl --schema VetClinicWeb.Schema ../frontend/schema.graphql",
     "codegen": "graphql-codegen",
-    "audit": "npm audit --omit=dev && npm audit --audit-level=high",
+    "audit": "audit-ci --config audit-ci.jsonc --skip-dev --low --show-not-found false && audit-ci --config audit-ci.jsonc --high",
     "e2e": "playwright test",
     "check": "npm run audit && graphql-codegen --check && tsc -b && oxlint --deny-warnings && prettier --check . && vitest run --coverage",
     "preview": "vite preview"
@@ -41,6 +41,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^5.1.0",
+    "audit-ci": "^7.1.0",
     "jsdom": "^29.1.1",
     "oxlint": "^1.90.0",
     "prettier": "^3.10.0",

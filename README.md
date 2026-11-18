@@ -26,7 +26,7 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 | Database | PostgreSQL 18 via Ecto |
 | Frontend | React 19, TypeScript 7 (strict), Vite 8, Apollo Client 4, React Router 7, Tailwind CSS 4, GraphQL Codegen |
 | Back-end quality | ExUnit with Faker, ExCoveralls (90% minimum), Credo (strict), Dialyzer, `mix format`, compile with warnings as errors, `mix hex.audit` |
-| Front-end quality | Vitest + Testing Library (90% minimum on lines, statements, functions and branches), Playwright end-to-end tests, oxlint, Prettier, `npm audit` |
+| Front-end quality | Vitest + Testing Library (90% minimum on lines, statements, functions and branches), Playwright end-to-end tests, oxlint, Prettier, `npm audit` via audit-ci (allowlist with expiry dates) |
 
 ## Status
 

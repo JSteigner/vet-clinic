@@ -1,0 +1,15 @@
+// Advisories `npm run audit` allows for now, each with why and until when.
+// After its expiry, an entry stops applying and the audit fails again.
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  "report-type": "summary",
+  "allowlist": [
+    {
+      "GHSA-fc5q-39xc-vjpf": {
+        "active": true,
+        "expiry": "2026-12-17",
+        "notes": "ReDoS in picomatch <=4.0.7, with no fixed release yet. Dev tools only (vite, vitest, tinyglobby, graphql-codegen), matching patterns from our own config, never user input.",
+      },
+    },
+  ],
+}

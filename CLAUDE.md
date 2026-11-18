@@ -99,7 +99,7 @@ React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, Apollo Client. Run thes
 - Test: `npm test` (watch mode) or `npx vitest run src/path.test.tsx`
 - Before finishing any frontend task: `npm run check` (`npm run audit`, `graphql-codegen --check`, `tsc -b`, `oxlint --deny-warnings`, `prettier --check`, then `vitest run --coverage` with a 90% minimum for lines, statements, functions and branches)
 - Format: `npm run format`
-- Dependency audit: `npm run audit` fails on any advisory in runtime deps (shipped to browsers) and on high/critical ones in dev deps. Moderate dev-only advisories print but pass; don't "fix" them with `npm audit fix --force`, which can downgrade majors.
+- Dependency audit: `npm run audit` (audit-ci) fails on any advisory in runtime deps (shipped to browsers) and on high/critical ones in dev deps. Moderate dev-only advisories print but pass; don't "fix" them with `npm audit fix --force`, which can downgrade majors. An advisory with no fixed release yet can go in `frontend/audit-ci.jsonc`'s allowlist with notes on why and an `expiry` about a month out; ask first, and remove the entry once a fix ships.
 - End-to-end: `npm run e2e` (Playwright, specs in `e2e/`). Needs Postgres. Starts its own Phoenix in the test env (4002, test database) and Vite (5174), separate from the dev servers on 4000/5173, which can keep running. Not part of `npm run check`; run it after changes to pages or the API.
 - After any GraphQL API change: `npm run schema` (re-exports `schema.graphql` from the backend), then `npm run codegen` (regenerates `src/gql/`)
 
