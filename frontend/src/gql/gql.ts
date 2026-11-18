@@ -25,6 +25,7 @@ type Documents = {
     "\n  fragment OwnerForm_owner on Owner {\n    id\n    name\n    email\n    phone\n  }\n": typeof types.OwnerForm_OwnerFragmentDoc,
     "\n  query Owners {\n    owners {\n      id\n      name\n      email\n      phone\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": typeof types.OwnersDocument,
     "\n  query Owner($id: ID!, $includeArchived: Boolean) {\n    owner(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n": typeof types.OwnerDocument,
+    "\n  query OwnerAppointments($ownerId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {\n    ownerAppointments(ownerId: $ownerId, status: $status, includeArchived: $includeArchived) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n      }\n      vet {\n        id\n        name\n      }\n    }\n  }\n": typeof types.OwnerAppointmentsDocument,
     "\n  mutation CreateOwner($input: CreateOwnerInput!) {\n    createOwner(input: $input) {\n      id\n      name\n      email\n      phone\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": typeof types.CreateOwnerDocument,
     "\n  mutation UpdateOwner($id: ID!, $input: UpdateOwnerInput!) {\n    updateOwner(id: $id, input: $input) {\n      id\n      name\n      email\n      phone\n    }\n  }\n": typeof types.UpdateOwnerDocument,
     "\n  mutation DeleteOwner($id: ID!) {\n    deleteOwner(id: $id) {\n      id\n      archivedAt\n    }\n  }\n": typeof types.DeleteOwnerDocument,
@@ -62,6 +63,7 @@ const documents: Documents = {
     "\n  fragment OwnerForm_owner on Owner {\n    id\n    name\n    email\n    phone\n  }\n": types.OwnerForm_OwnerFragmentDoc,
     "\n  query Owners {\n    owners {\n      id\n      name\n      email\n      phone\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": types.OwnersDocument,
     "\n  query Owner($id: ID!, $includeArchived: Boolean) {\n    owner(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n": types.OwnerDocument,
+    "\n  query OwnerAppointments($ownerId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {\n    ownerAppointments(ownerId: $ownerId, status: $status, includeArchived: $includeArchived) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n      }\n      vet {\n        id\n        name\n      }\n    }\n  }\n": types.OwnerAppointmentsDocument,
     "\n  mutation CreateOwner($input: CreateOwnerInput!) {\n    createOwner(input: $input) {\n      id\n      name\n      email\n      phone\n      pets {\n        id\n        archivedAt\n      }\n    }\n  }\n": types.CreateOwnerDocument,
     "\n  mutation UpdateOwner($id: ID!, $input: UpdateOwnerInput!) {\n    updateOwner(id: $id, input: $input) {\n      id\n      name\n      email\n      phone\n    }\n  }\n": types.UpdateOwnerDocument,
     "\n  mutation DeleteOwner($id: ID!) {\n    deleteOwner(id: $id) {\n      id\n      archivedAt\n    }\n  }\n": types.DeleteOwnerDocument,
@@ -146,6 +148,10 @@ export function graphql(source: "\n  query Owners {\n    owners {\n      id\n   
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query Owner($id: ID!, $includeArchived: Boolean) {\n    owner(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n"): (typeof documents)["\n  query Owner($id: ID!, $includeArchived: Boolean) {\n    owner(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      email\n      phone\n      archivedAt\n      ...OwnerForm_owner\n      pets {\n        id\n        name\n        species\n        breed\n        archivedAt\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query OwnerAppointments($ownerId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {\n    ownerAppointments(ownerId: $ownerId, status: $status, includeArchived: $includeArchived) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n      }\n      vet {\n        id\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query OwnerAppointments($ownerId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {\n    ownerAppointments(ownerId: $ownerId, status: $status, includeArchived: $includeArchived) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n      }\n      vet {\n        id\n        name\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

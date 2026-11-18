@@ -66,6 +66,7 @@ type Query {
   appointment(id: ID!): Appointment
   vetAppointments(vetId: ID!, date: Date): [Appointment!]!
   petAppointments(petId: ID!, status: AppointmentStatus, includeArchived: Boolean = false): [Appointment!]!
+  ownerAppointments(ownerId: ID!, status: AppointmentStatus, includeArchived: Boolean = false): [Appointment!]!  # all of the owner's pets
   search(                                 # owners, pets and vets matching term, grouped
     term: String
     archived: Boolean = false             # archived owners and pets only
@@ -122,7 +123,7 @@ Nested fields such as `owners { pets { appointments { vet { name } } } }` are ba
 | `/` | Daily schedule, kept live: check in, complete or cancel visits. The day is in the URL (`?date=`). |
 | `/appointments/new` | Booking: owner, then their pet, vet, time and reason |
 | `/appointments/:id` | One visit: status, reschedule or change vet while scheduled, delete |
-| `/owners`, `/owners/:id` | Owners and their pets: add, edit, archive; archived owners read-only, with Restore |
+| `/owners`, `/owners/:id` | Owners and their pets: add, edit, archive; all their pets' visits, upcoming by default; archived owners read-only, with Restore |
 | `/pets/:id` | A pet's details and visit history, filtered by status; archived pets read-only, with Restore |
 | `/vets`, `/vets/:id` | Vets and a vet's schedule for any day |
 | `/search` | All search results, up to 50 per group (`?q=`, `&archived=1` to include archived) |

@@ -13,6 +13,7 @@ import { byName, speciesLabel } from '../../lib/format';
 import PetForm from '../pets/PetForm';
 import { CREATE_PET } from '../pets/queries';
 import OwnerForm from './OwnerForm';
+import OwnerVisits from './OwnerVisits';
 import { DELETE_OWNER, OWNER, RESTORE_OWNER, UPDATE_OWNER } from './queries';
 
 /**
@@ -209,6 +210,8 @@ const OwnerPage = () => {
           </ul>
         )}
       </div>
+
+      <OwnerVisits ownerId={id} />
 
       {!owner.archivedAt && (
         <div className="border-t border-slate-200 pt-4">

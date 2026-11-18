@@ -45,6 +45,25 @@ export const OWNER = graphql(`
   }
 `);
 
+export const OWNER_APPOINTMENTS = graphql(`
+  query OwnerAppointments($ownerId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {
+    ownerAppointments(ownerId: $ownerId, status: $status, includeArchived: $includeArchived) {
+      id
+      startsAt
+      reason
+      status
+      pet {
+        id
+        name
+      }
+      vet {
+        id
+        name
+      }
+    }
+  }
+`);
+
 export const CREATE_OWNER = graphql(`
   mutation CreateOwner($input: CreateOwnerInput!) {
     createOwner(input: $input) {

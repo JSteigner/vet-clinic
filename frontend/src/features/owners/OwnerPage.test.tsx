@@ -9,7 +9,14 @@ import LocationDisplay from '../../test/LocationDisplay';
 import { renderWithProviders } from '../../test/render';
 import { CREATE_PET } from '../pets/queries';
 import OwnerPage from './OwnerPage';
-import { DELETE_OWNER, OWNER, OWNERS, RESTORE_OWNER, UPDATE_OWNER } from './queries';
+import {
+  DELETE_OWNER,
+  OWNER,
+  OWNER_APPOINTMENTS,
+  OWNERS,
+  RESTORE_OWNER,
+  UPDATE_OWNER,
+} from './queries';
 
 const ARCHIVED_AT = '2026-11-14T18:00:00Z';
 const OLD_TOM_ARCHIVED_AT = '2026-01-01T18:00:00Z';
@@ -45,6 +52,16 @@ const ownerQuery = (archivedAt: string | null = null): MockLink.MockedResponse =
   },
 });
 
+// OwnerVisits has its own tests; here it just needs an answer.
+const noUpcomingVisits: MockLink.MockedResponse = {
+  request: {
+    query: OWNER_APPOINTMENTS,
+    variables: { ownerId: '20', status: 'SCHEDULED', includeArchived: true },
+  },
+  result: { data: { ownerAppointments: [] } },
+  maxUsageCount: Number.POSITIVE_INFINITY,
+};
+
 const renderPage = (mocks: MockLink.MockedResponse[], cache?: InMemoryCache) =>
   renderWithProviders(
     <>
@@ -54,7 +71,7 @@ const renderPage = (mocks: MockLink.MockedResponse[], cache?: InMemoryCache) =>
       </Routes>
       <LocationDisplay />
     </>,
-    { mocks, route: '/owners/20', cache },
+    { mocks: [noUpcomingVisits, ...mocks], route: '/owners/20', cache },
   );
 
 const archiveOwner = (result: MockLink.MockedResponse['result']): MockLink.MockedResponse => ({

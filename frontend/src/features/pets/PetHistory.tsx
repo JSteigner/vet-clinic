@@ -6,16 +6,9 @@ import ErrorMessage from '../../components/ErrorMessage';
 import StatusBadge from '../../components/StatusBadge';
 import { INPUT } from '../../components/styles';
 import type { AppointmentStatus } from '../../gql/graphql';
+import { VISIT_FILTERS } from '../../lib/format';
 import { formatInZone, useClinicTimeZone } from '../../lib/time';
 import { PET_APPOINTMENTS } from './queries';
-
-const FILTERS: { label: string; status: AppointmentStatus | '' }[] = [
-  { label: 'All visits', status: '' },
-  { label: 'Upcoming', status: 'SCHEDULED' },
-  { label: 'Checked in', status: 'CHECKED_IN' },
-  { label: 'Completed', status: 'COMPLETED' },
-  { label: 'Cancelled', status: 'CANCELLED' },
-];
 
 /** A pet's visits, oldest first, optionally filtered by status. */
 const PetHistory = ({ petId }: { petId: string }) => {
@@ -40,7 +33,7 @@ const PetHistory = ({ petId }: { petId: string }) => {
             onChange={(event) => setStatus(event.target.value as AppointmentStatus | '')}
             className={`${INPUT} w-auto`}
           >
-            {FILTERS.map(({ label, status: value }) => (
+            {VISIT_FILTERS.map(({ label, status: value }) => (
               <option key={label} value={value}>
                 {label}
               </option>
