@@ -13,7 +13,9 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 - **Booking.** Book, reschedule or reassign an appointment for a pet with a vet. Times in the past and unknown pets or vets are rejected with clear, per-field errors.
 - **Visit history.** A pet's appointments filtered by status, e.g. completed visits for history or scheduled ones for what's coming up.
 - **Patients and vets.** Owners and their pets, and the vets who see them, with a vet's schedule for any day.
+- **Search.** One box in the header finds owners (by name, email or phone number, punctuation optional), pets (by name or species) and vets (by name or email) as you type, with a full results page.
 - **Safe deletes.** Deleting an owner or pet archives it instead of erasing it, and cancels their open appointments while keeping completed visits. A vet can't be deleted while they still have appointments.
+- **Archive and restore.** Archived owners and pets can still be found ("archived pets", or "Include archived") and opened read-only. Restoring an owner brings back the pets archived with them; cancelled visits stay cancelled.
 
 ## Tech stack
 
@@ -40,6 +42,7 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 - [x] ExUnit tests for the GraphQL API over HTTP and the subscription socket
 - [x] React + Apollo frontend: live schedule, booking, appointment, owner, pet and vet pages
 - [x] Component tests (Vitest) and end-to-end tests (Playwright)
+- [x] Search, with archived owners and pets and restoring them
 - [ ] Deployment
 
 ## GraphQL API
@@ -53,25 +56,34 @@ Built with **Elixir/Phoenix + Absinthe (GraphQL)** on the back end and **React +
 ```graphql
 type Query {
   owners: [Owner!]!                       # active owners, by name
-  owner(id: ID!): Owner
+  owner(id: ID!, includeArchived: Boolean = false): Owner
   petOwner(petId: ID!): Owner
-  pet(id: ID!): Pet
+  pet(id: ID!, includeArchived: Boolean = false): Pet
   ownerPets(ownerId: ID!): [Pet!]!
   vets: [Vet!]!
   vet(id: ID!): Vet
   appointments(date: Date): [Appointment!]!          # clinic schedule; defaults to today in the clinic's time zone
   appointment(id: ID!): Appointment
   vetAppointments(vetId: ID!, date: Date): [Appointment!]!
-  petAppointments(petId: ID!, status: AppointmentStatus): [Appointment!]!
+  petAppointments(petId: ID!, status: AppointmentStatus, includeArchived: Boolean = false): [Appointment!]!
+  search(                                 # owners, pets and vets matching term, grouped
+    term: String
+    archived: Boolean = false             # archived owners and pets only
+    includeArchived: Boolean = false      # archived ones alongside active ones
+    types: [SearchType!]                  # OWNER, PET, VET; all by default
+    limit: Int = 5                        # per group, 1 to 50
+  ): SearchResults!                       # { owners pets vets }
 }
 
 type Mutation {
   createOwner(input: CreateOwnerInput!): Owner
   updateOwner(id: ID!, input: UpdateOwnerInput!): Owner
   deleteOwner(id: ID!): Owner             # archives the owner and their pets
+  restoreOwner(id: ID!): Owner            # and the pets archived with them
   createPet(input: CreatePetInput!): Pet
   updatePet(id: ID!, input: UpdatePetInput!): Pet
   deletePet(id: ID!): Pet                 # archives the pet
+  restorePet(id: ID!): Pet                # fails while its owner is archived
   createVet(input: CreateVetInput!): Vet
   updateVet(id: ID!, input: UpdateVetInput!): Vet
   deleteVet(id: ID!): Vet                 # fails while the vet has appointments
@@ -110,15 +122,17 @@ Nested fields such as `owners { pets { appointments { vet { name } } } }` are ba
 | `/` | Daily schedule, kept live: check in, complete or cancel visits. The day is in the URL (`?date=`). |
 | `/appointments/new` | Booking: owner, then their pet, vet, time and reason |
 | `/appointments/:id` | One visit: status, reschedule or change vet while scheduled, delete |
-| `/owners`, `/owners/:id` | Owners and their pets: add, edit, archive |
-| `/pets/:id` | A pet's details and visit history, filtered by status |
+| `/owners`, `/owners/:id` | Owners and their pets: add, edit, archive; archived owners read-only, with Restore |
+| `/pets/:id` | A pet's details and visit history, filtered by status; archived pets read-only, with Restore |
 | `/vets`, `/vets/:id` | Vets and a vet's schedule for any day |
+| `/search` | All search results, up to 50 per group (`?q=`, `&archived=1` to include archived) |
 
 A few decisions worth calling out:
 
 - **Live updates over Absinthe's channel protocol.** Absinthe runs subscriptions over Phoenix Channels, not `graphql-ws`, and the community Apollo link for it targets Apollo Client 3. So [`absintheLink.ts`](frontend/src/apollo/absintheLink.ts) is a small custom Apollo link on top of the `phoenix` socket, with tests, including unsubscribing when a component unmounts before the server has replied. When `appointmentChanged` fires, the schedule refetches the day it shows.
 - **Typed end to end.** `schema.graphql` is exported from the backend and committed, and GraphQL Codegen generates TypeScript types for every query, mutation and fragment from it. Components declare their data as colocated fragments. Renaming a field in the API breaks `tsc`, not the running app, and `npm run check` fails if the generated types are stale.
 - **The clinic's time zone, not the browser's.** The API exposes `clinicTimeZone`, and the UI shows and enters times in it, so "today" means the same day on the schedule and in the API wherever the browser is.
+- **Search that waits for you.** The header search is an accessible combobox (arrow keys, Enter, Escape) that queries only after typing pauses for half a second. Keywords narrow it: "archived" for archived records, "owners", "pets" or "vets" for one group, so "archived pets" lists archived pets.
 - **Cache-first, with clear rules.** Every object is normalized by `id`, so a status change updates every view of that visit. New owners, pets and vets go straight into the cached lists, while lists the server filters (a day's schedule, a pet's history) are refetched.
 
 ## Getting started

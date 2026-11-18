@@ -17,6 +17,7 @@ Run these from `backend/`:
 - Never use Ecto (Repo, changesets, queries) in the web layer. Go through `Clinic`; e.g. `Clinic.validation_errors/1` turns a changeset into plain `%{field => [message]}` data.
 - GraphQL types go in `lib/vet_clinic_web/schema/`, resolvers in `lib/vet_clinic_web/resolvers/`. Load associations with Dataloader (`Clinic.datasource/0`), not per-row queries.
 - Subscriptions are triggered from mutations through Absinthe `trigger`. Don't publish manually from contexts.
+- Archived (soft-deleted) owners and pets are left out by default. A query that can return them takes `includeArchived: Boolean = false` in GraphQL and an `include_archived:` option in the context, built with the `VetClinic.Archivable` helpers.
 - Evolve the GraphQL API additively. Ask before removing or renaming a field, argument or type; deprecate it first (`deprecate: "use X"`) so clients can move off it.
 
 ## Changes across the stack

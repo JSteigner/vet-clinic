@@ -13,9 +13,10 @@ test('books an appointment that then appears on that day of the schedule', async
   await page.goto(`/?date=${day}`);
   await page.getByRole('link', { name: 'Book appointment' }).click();
 
-  await page.getByLabel('Owner').selectOption({ label: owner.name });
-  await page.getByLabel('Pet').selectOption({ label: pet.name });
-  await page.getByLabel('Vet').selectOption({ label: vet.name });
+  // Exact labels: the header search ("Search owners, pets and vets") contains these words too.
+  await page.getByLabel('Owner', { exact: true }).selectOption({ label: owner.name });
+  await page.getByLabel('Pet', { exact: true }).selectOption({ label: pet.name });
+  await page.getByLabel('Vet', { exact: true }).selectOption({ label: vet.name });
   await page.getByLabel(/Date and time/).fill(`${day}T10:15`);
   await page.getByLabel('Reason').fill('E2E booking');
   await page.getByRole('button', { name: 'Book appointment' }).click();
