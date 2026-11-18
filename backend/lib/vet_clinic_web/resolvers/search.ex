@@ -19,6 +19,7 @@ defmodule VetClinicWeb.Resolvers.Search do
   @type search :: %{
           term: String.t() | nil,
           archived: boolean(),
+          include_archived: boolean(),
           types: [:owner | :pet | :vet] | nil,
           limit: pos_integer()
         }
@@ -29,6 +30,7 @@ defmodule VetClinicWeb.Resolvers.Search do
      %{
        term: normalize_term(args[:term]),
        archived: args.archived,
+       include_archived: args.include_archived,
        types: args[:types],
        limit: clamp_limit(args.limit)
      }}
@@ -36,13 +38,12 @@ defmodule VetClinicWeb.Resolvers.Search do
 
   @spec owners(search(), map(), Resolution.t()) :: Helpers.result([Owner.t()])
   def owners(search, _args, _resolution) do
-    {:ok,
-     run(search, :owner, &Clinic.search_owners(&1.term, archived: &1.archived, limit: &1.limit))}
+    {:ok, run(search, :owner, &Clinic.search_owners(&1.term, archive_opts(&1)))}
   end
 
   @spec pets(search(), map(), Resolution.t()) :: Helpers.result([Pet.t()])
   def pets(search, _args, _resolution) do
-    {:ok, run(search, :pet, &Clinic.search_pets(&1.term, archived: &1.archived, limit: &1.limit))}
+    {:ok, run(search, :pet, &Clinic.search_pets(&1.term, archive_opts(&1)))}
   end
 
   @spec vets(search(), map(), Resolution.t()) :: Helpers.result([Vet.t()])
@@ -64,6 +65,10 @@ defmodule VetClinicWeb.Resolvers.Search do
     limit
     |> max(1)
     |> min(@max_limit)
+  end
+
+  defp archive_opts(search) do
+    [archived: search.archived, include_archived: search.include_archived, limit: search.limit]
   end
 
   defp run(search, type, query) do

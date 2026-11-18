@@ -40,12 +40,17 @@ defmodule VetClinic.Owners do
   @doc """
   Owners whose name, email or phone number matches `term` (case-insensitive,
   anywhere; phone numbers by digits), by name, up to `:limit`. Searches active
-  owners, or archived ones with `archived: true`. A `nil` term lists them all.
+  owners, archived ones too with `include_archived: true`, or only archived
+  ones with `archived: true`. A `nil` term lists them all.
   """
-  @spec search_owners(String.t() | nil, archived: boolean(), limit: pos_integer()) :: [Owner.t()]
+  @spec search_owners(String.t() | nil,
+          archived: boolean(),
+          include_archived: boolean(),
+          limit: pos_integer()
+        ) :: [Owner.t()]
   def search_owners(term, opts) do
     Owner
-    |> archived_or_active(opts[:archived])
+    |> archived_or_active(opts[:archived], opts[:include_archived])
     |> Search.matching(term, [:name, :email], &phone_matches/1)
     |> Search.first_by_name(Keyword.fetch!(opts, :limit))
     |> Repo.all()

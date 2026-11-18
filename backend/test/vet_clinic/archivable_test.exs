@@ -27,9 +27,18 @@ defmodule VetClinic.ArchivableTest do
              MapSet.new([context.active.id, context.archived.id])
   end
 
-  test "archived_or_active/2 switches between the two", context do
+  test "archived_or_active/3 switches between the two", context do
     assert ids(Archivable.archived_or_active(Owner, true)) == MapSet.new([context.archived.id])
     assert ids(Archivable.archived_or_active(Owner, false)) == MapSet.new([context.active.id])
+  end
+
+  test "archived_or_active/3 includes archived records when asked, unless only archived",
+       context do
+    assert ids(Archivable.archived_or_active(Owner, false, true)) ==
+             MapSet.new([context.active.id, context.archived.id])
+
+    assert ids(Archivable.archived_or_active(Owner, true, true)) ==
+             MapSet.new([context.archived.id])
   end
 
   defp ids(query) do

@@ -25,13 +25,16 @@ defmodule VetClinicWeb.Schema.SearchTypes do
     @desc """
     Owners (name, email, phone), pets (name, species) and vets (name, email)
     matching `term`, case-insensitive, by name. `archived` searches archived
-    owners and pets instead (vets aren't archived); `types` limits the groups.
+    owners and pets instead (vets aren't archived), and `includeArchived`
+    searches them alongside the active ones; `types` limits the groups.
     Without a term of at least 2 characters, it lists the chosen groups when
     `archived` or `types` is given, and returns nothing otherwise.
     """
     field :search, non_null(:search_results) do
       arg :term, :string
       arg :archived, :boolean, default_value: false
+      @desc "Also search archived owners and pets. `archived` takes precedence."
+      arg :include_archived, :boolean, default_value: false
       arg :types, list_of(non_null(:search_type))
       @desc "Results per group, 1 to 50."
       arg :limit, :integer, default_value: 5

@@ -4,8 +4,20 @@ defmodule VetClinicWeb.Schema.SearchTypesTest do
   alias VetClinic.Clinic
 
   @query """
-  query ($term: String, $archived: Boolean, $types: [SearchType!], $limit: Int) {
-    search(term: $term, archived: $archived, types: $types, limit: $limit) {
+  query (
+    $term: String
+    $archived: Boolean
+    $includeArchived: Boolean
+    $types: [SearchType!]
+    $limit: Int
+  ) {
+    search(
+      term: $term
+      archived: $archived
+      includeArchived: $includeArchived
+      types: $types
+      limit: $limit
+    ) {
       owners { name }
       pets { name owner { name } }
       vets { name }
@@ -61,6 +73,20 @@ defmodule VetClinicWeb.Schema.SearchTypesTest do
              "owners" => [%{"name" => "Rexford Hale"}],
              "pets" => [%{"name" => "Rex", "owner" => %{"name" => "Rexford Hale"}}],
              "vets" => []
+           }
+  end
+
+  test "searches archived owners and pets alongside active ones with includeArchived", %{
+    conn: conn,
+    owner: owner
+  } do
+    active = owner_fixture(%{name: "Rexanne Bell", email: unique_email()})
+    {:ok, _} = Clinic.delete_owner(owner)
+
+    assert search(conn, %{term: "rex", includeArchived: true}) == %{
+             "owners" => [%{"name" => active.name}, %{"name" => "Rexford Hale"}],
+             "pets" => [%{"name" => "Rex", "owner" => %{"name" => "Rexford Hale"}}],
+             "vets" => [%{"name" => "Dr. Rexa"}]
            }
   end
 

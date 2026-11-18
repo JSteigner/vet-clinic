@@ -200,6 +200,16 @@ defmodule VetClinic.OwnersTest do
       assert names(Owners.search_owners("maria", archived: true, limit: 5)) == ["Maria Lopez"]
     end
 
+    test "searches archived owners alongside active ones with include_archived", %{maria: maria} do
+      {:ok, _} = Owners.delete_owner(maria)
+
+      assert names(Owners.search_owners(nil, include_archived: true, limit: 5)) ==
+               ["James Carter", "Maria Lopez"]
+
+      assert names(Owners.search_owners(nil, archived: true, include_archived: true, limit: 5)) ==
+               ["Maria Lopez"]
+    end
+
     test "lists owners by name for a nil term, up to the limit" do
       assert names(Owners.search_owners(nil, limit: 5)) == ["James Carter", "Maria Lopez"]
       assert names(Owners.search_owners(nil, limit: 1)) == ["James Carter"]

@@ -154,6 +154,13 @@ defmodule VetClinic.PetsTest do
       assert names(Pets.search_pets("rex", archived: true, limit: 5)) == ["Rex"]
     end
 
+    test "searches archived pets alongside active ones with include_archived", %{rex: rex} do
+      {:ok, _} = Pets.delete_pet(rex)
+
+      assert names(Pets.search_pets(nil, include_archived: true, limit: 5)) ==
+               ["Clover", "Mochi", "Rex"]
+    end
+
     test "lists pets by name for a nil term, up to the limit" do
       assert names(Pets.search_pets(nil, limit: 2)) == ["Clover", "Mochi"]
     end

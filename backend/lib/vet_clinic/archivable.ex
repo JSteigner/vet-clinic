@@ -20,8 +20,15 @@ defmodule VetClinic.Archivable do
   def maybe_active(query, true = _include_archived), do: query
   def maybe_active(query, _include_archived), do: active(query)
 
-  @doc "Only archived records when `archived` is true, otherwise only active ones."
-  @spec archived_or_active(Ecto.Queryable.t(), boolean() | nil) :: Ecto.Query.t()
-  def archived_or_active(query, true = _archived), do: archived(query)
-  def archived_or_active(query, _archived), do: active(query)
+  @doc """
+  Only archived records when `archived` is true. Otherwise only active ones,
+  unless `include_archived` is true.
+  """
+  @spec archived_or_active(Ecto.Queryable.t(), boolean() | nil, boolean() | nil) ::
+          Ecto.Queryable.t()
+  def archived_or_active(query, archived, include_archived \\ false)
+  def archived_or_active(query, true = _archived, _include_archived), do: archived(query)
+
+  def archived_or_active(query, _archived, include_archived),
+    do: maybe_active(query, include_archived)
 end

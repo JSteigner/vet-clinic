@@ -31,13 +31,18 @@ defmodule VetClinic.Pets do
 
   @doc """
   Pets whose name or species matches `term` (case-insensitive, anywhere), by
-  name, up to `:limit`. Searches active pets, or archived ones with
-  `archived: true`. A `nil` term lists them all.
+  name, up to `:limit`. Searches active pets, archived ones too with
+  `include_archived: true`, or only archived ones with `archived: true`. A
+  `nil` term lists them all.
   """
-  @spec search_pets(String.t() | nil, archived: boolean(), limit: pos_integer()) :: [Pet.t()]
+  @spec search_pets(String.t() | nil,
+          archived: boolean(),
+          include_archived: boolean(),
+          limit: pos_integer()
+        ) :: [Pet.t()]
   def search_pets(term, opts) do
     Pet
-    |> archived_or_active(opts[:archived])
+    |> archived_or_active(opts[:archived], opts[:include_archived])
     |> Search.matching(term, [:name], &species_matches/1)
     |> Search.first_by_name(Keyword.fetch!(opts, :limit))
     |> Repo.all()
