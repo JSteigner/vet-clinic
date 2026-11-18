@@ -114,6 +114,9 @@ defmodule VetClinic.Clinic do
   @spec list_pet_appointments(integer(), status: Appointment.status()) :: [Appointment.t()]
   defdelegate list_pet_appointments(pet_id, opts \\ []), to: Appointments
 
+  @spec list_owner_appointments(integer(), status: Appointment.status()) :: [Appointment.t()]
+  defdelegate list_owner_appointments(owner_id, opts \\ []), to: Appointments
+
   @spec get_appointment(integer()) :: Appointment.t() | nil
   defdelegate get_appointment(id), to: Appointments
 

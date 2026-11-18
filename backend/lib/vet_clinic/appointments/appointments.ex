@@ -60,6 +60,25 @@ defmodule VetClinic.Appointments do
     |> Repo.all()
   end
 
+  @doc """
+  Lists the appointments of all of an owner's pets, archived ones included,
+  ordered by start time.
+
+  ## Options
+
+    * `:status` - only appointments with that status, e.g. `:scheduled`
+      for upcoming visits
+  """
+  @spec list_owner_appointments(integer(), status: Appointment.status()) :: [Appointment.t()]
+  def list_owner_appointments(owner_id, opts \\ []) do
+    Appointment
+    |> join(:inner, [a], p in assoc(a, :pet))
+    |> where([_a, p], p.owner_id == ^owner_id)
+    |> filter_by(:status, opts[:status])
+    |> order_by(:starts_at)
+    |> Repo.all()
+  end
+
   @spec get_appointment(integer()) :: Appointment.t() | nil
   def get_appointment(id), do: Repo.get(Appointment, id)
 

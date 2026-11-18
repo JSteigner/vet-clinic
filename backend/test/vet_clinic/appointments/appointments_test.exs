@@ -2,6 +2,7 @@ defmodule VetClinic.AppointmentsTest do
   use VetClinic.DataCase, async: true
 
   alias VetClinic.Appointments
+  alias VetClinic.Pets
 
   # A future date, so appointments on it can be booked through the API.
   setup do
@@ -71,6 +72,32 @@ defmodule VetClinic.AppointmentsTest do
                [context.completed.id]
 
       assert ids(Appointments.list_pet_appointments(context.pet.id, status: :scheduled)) ==
+               [context.scheduled.id]
+    end
+  end
+
+  describe "list_owner_appointments/2" do
+    setup do
+      owner = owner_fixture()
+      rex = pet_fixture(%{owner_id: owner.id})
+      {:ok, old_tom} = Pets.delete_pet(pet_fixture(%{owner_id: owner.id}))
+
+      %{
+        owner: owner,
+        completed: past_appointment_fixture(%{pet_id: old_tom.id, status: :completed}),
+        scheduled: appointment_fixture(%{pet_id: rex.id})
+      }
+    end
+
+    test "returns every pet's appointments, archived pets included, ordered by time", context do
+      _other_owners = appointment_fixture()
+
+      assert ids(Appointments.list_owner_appointments(context.owner.id)) ==
+               [context.completed.id, context.scheduled.id]
+    end
+
+    test "can be filtered by status", context do
+      assert ids(Appointments.list_owner_appointments(context.owner.id, status: :scheduled)) ==
                [context.scheduled.id]
     end
   end

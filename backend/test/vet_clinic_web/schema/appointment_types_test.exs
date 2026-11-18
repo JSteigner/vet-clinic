@@ -124,6 +124,61 @@ defmodule VetClinicWeb.Schema.AppointmentTypesTest do
     end
   end
 
+  describe "ownerAppointments query" do
+    @query """
+    query ($ownerId: ID!, $status: AppointmentStatus, $includeArchived: Boolean) {
+      ownerAppointments(ownerId: $ownerId, status: $status, includeArchived: $includeArchived) {
+        id
+        pet { name }
+      }
+    }
+    """
+
+    setup do
+      owner = owner_fixture()
+      rex = pet_fixture(%{owner_id: owner.id, name: "Rex"})
+      mochi = pet_fixture(%{owner_id: owner.id, name: "Mochi"})
+
+      %{
+        owner: owner,
+        past: past_appointment_fixture(%{pet_id: mochi.id, status: :completed}),
+        upcoming: appointment_fixture(%{pet_id: rex.id})
+      }
+    end
+
+    test "lists all of the owner's pets' appointments, filtered by status", context do
+      %{conn: conn, owner: owner, past: past, upcoming: upcoming} = context
+
+      assert %{"data" => %{"ownerAppointments" => all}} =
+               graphql(conn, @query, %{ownerId: owner.id})
+
+      assert all == [
+               %{"id" => "#{past.id}", "pet" => %{"name" => "Mochi"}},
+               %{"id" => "#{upcoming.id}", "pet" => %{"name" => "Rex"}}
+             ]
+
+      assert %{"data" => %{"ownerAppointments" => [%{"id" => id}]}} =
+               graphql(conn, @query, %{ownerId: owner.id, status: "SCHEDULED"})
+
+      assert id == "#{upcoming.id}"
+    end
+
+    test "returns not found for an unknown owner", %{conn: conn} do
+      assert %{"errors" => [%{"message" => "owner not found"}]} =
+               graphql(conn, @query, %{ownerId: "-1"})
+    end
+
+    test "shows an archived owner's history with includeArchived", %{conn: conn, owner: owner} do
+      {:ok, _owner} = Clinic.delete_owner(owner)
+
+      assert %{"errors" => [%{"message" => "owner not found"}]} =
+               graphql(conn, @query, %{ownerId: owner.id})
+
+      assert %{"data" => %{"ownerAppointments" => [_past, _cancelled]}} =
+               graphql(conn, @query, %{ownerId: owner.id, includeArchived: true})
+    end
+  end
+
   describe "createAppointment mutation" do
     @mutation """
     mutation ($input: CreateAppointmentInput!) {

@@ -46,6 +46,16 @@ defmodule VetClinicWeb.Resolvers.Appointments do
     end
   end
 
+  @spec list_owner_appointments(term(), map(), Resolution.t()) ::
+          Helpers.result([Appointment.t()])
+  def list_owner_appointments(_parent, %{owner_id: owner_id} = args, _resolution) do
+    get_owner = &Clinic.get_owner(&1, include_archived: args.include_archived)
+
+    with {:ok, owner} <- Helpers.fetch(owner_id, get_owner, "owner") do
+      {:ok, Clinic.list_owner_appointments(owner.id, filters(args, [:status]))}
+    end
+  end
+
   @spec create_appointment(term(), map(), Resolution.t()) :: Helpers.result(Appointment.t())
   def create_appointment(_parent, %{input: input}, _resolution) do
     Clinic.create_appointment(input)

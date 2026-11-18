@@ -82,6 +82,17 @@ defmodule VetClinicWeb.Schema.AppointmentTypes do
       arg :include_archived, :boolean, default_value: false
       resolve &Appointments.list_pet_appointments/3
     end
+
+    @desc """
+    The appointments of all of an owner's pets (archived pets included),
+    ordered by start time. Filter by status, e.g. SCHEDULED for upcoming visits.
+    """
+    field :owner_appointments, non_null(list_of(non_null(:appointment))) do
+      arg :owner_id, non_null(:id)
+      arg :status, :appointment_status
+      arg :include_archived, :boolean, default_value: false
+      resolve &Appointments.list_owner_appointments/3
+    end
   end
 
   object :appointment_mutations do

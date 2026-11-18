@@ -51,6 +51,12 @@ type RootQueryType {
   petAppointments(petId: ID!, status: AppointmentStatus, includeArchived: Boolean): [Appointment!]!
 
   """
+  The appointments of all of an owner's pets (archived pets included),
+  ordered by start time. Filter by status, e.g. SCHEDULED for upcoming visits.
+  """
+  ownerAppointments(ownerId: ID!, status: AppointmentStatus, includeArchived: Boolean): [Appointment!]!
+
+  """
   Owners (name, email, phone), pets (name, species) and vets (name, email)
   matching `term`, case-insensitive, by name. `archived` searches archived
   owners and pets instead (vets aren't archived), and `includeArchived`
