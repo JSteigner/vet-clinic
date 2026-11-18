@@ -40,6 +40,7 @@ type Documents = {
     "\n  query DailySchedule($date: Date) {\n    appointments(date: $date) {\n      id\n      ...AppointmentRow_appointment\n    }\n  }\n": typeof types.DailyScheduleDocument,
     "\n  mutation UpdateAppointmentStatus($id: ID!, $status: AppointmentStatus!) {\n    updateAppointmentStatus(id: $id, status: $status) {\n      id\n      status\n    }\n  }\n": typeof types.UpdateAppointmentStatusDocument,
     "\n  subscription AppointmentChanged {\n    appointmentChanged {\n      id\n      status\n      startsAt\n    }\n  }\n": typeof types.AppointmentChangedDocument,
+    "\n  query Search(\n    $term: String\n    $archived: Boolean\n    $includeArchived: Boolean\n    $types: [SearchType!]\n    $limit: Int\n  ) {\n    search(\n      term: $term\n      archived: $archived\n      includeArchived: $includeArchived\n      types: $types\n      limit: $limit\n    ) {\n      owners {\n        id\n        name\n        email\n        phone\n        archivedAt\n      }\n      pets {\n        id\n        name\n        species\n        archivedAt\n        owner {\n          id\n          name\n        }\n      }\n      vets {\n        id\n        name\n        email\n      }\n    }\n  }\n": typeof types.SearchDocument,
     "\n  fragment VetForm_vet on Vet {\n    id\n    name\n    email\n  }\n": typeof types.VetForm_VetFragmentDoc,
     "\n  query Vets {\n    vets {\n      id\n      name\n      email\n    }\n  }\n": typeof types.VetsDocument,
     "\n  query Vet($id: ID!) {\n    vet(id: $id) {\n      id\n      name\n      email\n      ...VetForm_vet\n    }\n  }\n": typeof types.VetDocument,
@@ -76,6 +77,7 @@ const documents: Documents = {
     "\n  query DailySchedule($date: Date) {\n    appointments(date: $date) {\n      id\n      ...AppointmentRow_appointment\n    }\n  }\n": types.DailyScheduleDocument,
     "\n  mutation UpdateAppointmentStatus($id: ID!, $status: AppointmentStatus!) {\n    updateAppointmentStatus(id: $id, status: $status) {\n      id\n      status\n    }\n  }\n": types.UpdateAppointmentStatusDocument,
     "\n  subscription AppointmentChanged {\n    appointmentChanged {\n      id\n      status\n      startsAt\n    }\n  }\n": types.AppointmentChangedDocument,
+    "\n  query Search(\n    $term: String\n    $archived: Boolean\n    $includeArchived: Boolean\n    $types: [SearchType!]\n    $limit: Int\n  ) {\n    search(\n      term: $term\n      archived: $archived\n      includeArchived: $includeArchived\n      types: $types\n      limit: $limit\n    ) {\n      owners {\n        id\n        name\n        email\n        phone\n        archivedAt\n      }\n      pets {\n        id\n        name\n        species\n        archivedAt\n        owner {\n          id\n          name\n        }\n      }\n      vets {\n        id\n        name\n        email\n      }\n    }\n  }\n": types.SearchDocument,
     "\n  fragment VetForm_vet on Vet {\n    id\n    name\n    email\n  }\n": types.VetForm_VetFragmentDoc,
     "\n  query Vets {\n    vets {\n      id\n      name\n      email\n    }\n  }\n": types.VetsDocument,
     "\n  query Vet($id: ID!) {\n    vet(id: $id) {\n      id\n      name\n      email\n      ...VetForm_vet\n    }\n  }\n": types.VetDocument,
@@ -204,6 +206,10 @@ export function graphql(source: "\n  mutation UpdateAppointmentStatus($id: ID!, 
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  subscription AppointmentChanged {\n    appointmentChanged {\n      id\n      status\n      startsAt\n    }\n  }\n"): (typeof documents)["\n  subscription AppointmentChanged {\n    appointmentChanged {\n      id\n      status\n      startsAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query Search(\n    $term: String\n    $archived: Boolean\n    $includeArchived: Boolean\n    $types: [SearchType!]\n    $limit: Int\n  ) {\n    search(\n      term: $term\n      archived: $archived\n      includeArchived: $includeArchived\n      types: $types\n      limit: $limit\n    ) {\n      owners {\n        id\n        name\n        email\n        phone\n        archivedAt\n      }\n      pets {\n        id\n        name\n        species\n        archivedAt\n        owner {\n          id\n          name\n        }\n      }\n      vets {\n        id\n        name\n        email\n      }\n    }\n  }\n"): (typeof documents)["\n  query Search(\n    $term: String\n    $archived: Boolean\n    $includeArchived: Boolean\n    $types: [SearchType!]\n    $limit: Int\n  ) {\n    search(\n      term: $term\n      archived: $archived\n      includeArchived: $includeArchived\n      types: $types\n      limit: $limit\n    ) {\n      owners {\n        id\n        name\n        email\n        phone\n        archivedAt\n      }\n      pets {\n        id\n        name\n        species\n        archivedAt\n        owner {\n          id\n          name\n        }\n      }\n      vets {\n        id\n        name\n        email\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

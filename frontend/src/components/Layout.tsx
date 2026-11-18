@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router';
 
+import SearchBox from '../features/search/SearchBox';
 import { useClinicTimeZone } from '../lib/time';
 
 const NAV = [
@@ -32,7 +33,10 @@ const Layout = () => {
               </NavLink>
             ))}
           </nav>
-          {timeZone && <span className="ml-auto text-xs text-slate-500">Times in {timeZone}</span>}
+          <div className="order-last w-full sm:order-none sm:w-auto sm:min-w-48 sm:flex-1">
+            <SearchBox />
+          </div>
+          {timeZone && <span className="text-xs text-slate-500">Times in {timeZone}</span>}
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
