@@ -44,6 +44,7 @@ defmodule VetClinic.MixProject do
     [
       preferred_envs: [
         precommit: :test,
+        "precommit.code": :test,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.html": :test
@@ -95,12 +96,17 @@ defmodule VetClinic.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       precommit: [
-        "compile --warnings-as-errors",
-        "deps.unlock --unused",
         # Fails on retired Hex packages and ones with security advisories.
         # Run through cmd: hex.audit lives in the Hex archive, which an alias
         # can't load as a task; cmd still stops the alias if it fails.
         "cmd mix hex.audit",
+        "precommit.code"
+      ],
+      # Everything in precommit but the audit, which needs the network: for
+      # demos or offline. Not a substitute for precommit before finishing.
+      "precommit.code": [
+        "compile --warnings-as-errors",
+        "deps.unlock --unused",
         "format",
         "credo --strict",
         "dialyzer",

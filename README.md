@@ -187,13 +187,15 @@ Browser origins allowed to call the API (CORS) are set with `config :vet_clinic,
 
 ```bash
 cd backend
-mix precommit         # compile with warnings as errors, hex.audit, format, credo --strict, dialyzer, tests + 90% coverage
+mix precommit         # hex.audit, then everything in precommit.code
+mix precommit.code    # compile with warnings as errors, format, credo --strict, dialyzer, tests + 90% coverage; no audit, works offline
 mix coveralls.html    # browsable coverage report in cover/excoveralls.html
 ```
 
 ```bash
 cd frontend
-npm run check         # npm audit, codegen check, tsc, oxlint, prettier, Vitest + 90% coverage
+npm run check         # npm audit, then everything in check:code
+npm run check:code    # codegen check, tsc, oxlint, prettier, Vitest + 90% coverage; no audit, works offline
 npm run e2e           # Playwright against its own Phoenix (test env) and Vite servers
 ```
 
