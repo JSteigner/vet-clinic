@@ -16,6 +16,7 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
 type Documents = {
     "\n  query BookingOptions {\n    owners {\n      id\n      name\n    }\n    vets {\n      id\n      name\n    }\n  }\n": typeof types.BookingOptionsDocument,
     "\n  query OwnerPets($ownerId: ID!) {\n    ownerPets(ownerId: $ownerId) {\n      id\n      name\n      species\n    }\n  }\n": typeof types.OwnerPetsDocument,
+    "\n  query PetOwner($petId: ID!) {\n    petOwner(petId: $petId) {\n      id\n    }\n  }\n": typeof types.PetOwnerDocument,
     "\n  mutation CreateAppointment($input: CreateAppointmentInput!) {\n    createAppointment(input: $input) {\n      id\n      startsAt\n    }\n  }\n": typeof types.CreateAppointmentDocument,
     "\n  fragment AppointmentEditForm_appointment on Appointment {\n    id\n    startsAt\n    reason\n    vet {\n      id\n    }\n  }\n": typeof types.AppointmentEditForm_AppointmentFragmentDoc,
     "\n  fragment AppointmentEditForm_vet on Vet {\n    id\n    name\n  }\n": typeof types.AppointmentEditForm_VetFragmentDoc,
@@ -54,6 +55,7 @@ type Documents = {
 const documents: Documents = {
     "\n  query BookingOptions {\n    owners {\n      id\n      name\n    }\n    vets {\n      id\n      name\n    }\n  }\n": types.BookingOptionsDocument,
     "\n  query OwnerPets($ownerId: ID!) {\n    ownerPets(ownerId: $ownerId) {\n      id\n      name\n      species\n    }\n  }\n": types.OwnerPetsDocument,
+    "\n  query PetOwner($petId: ID!) {\n    petOwner(petId: $petId) {\n      id\n    }\n  }\n": types.PetOwnerDocument,
     "\n  mutation CreateAppointment($input: CreateAppointmentInput!) {\n    createAppointment(input: $input) {\n      id\n      startsAt\n    }\n  }\n": types.CreateAppointmentDocument,
     "\n  fragment AppointmentEditForm_appointment on Appointment {\n    id\n    startsAt\n    reason\n    vet {\n      id\n    }\n  }\n": types.AppointmentEditForm_AppointmentFragmentDoc,
     "\n  fragment AppointmentEditForm_vet on Vet {\n    id\n    name\n  }\n": types.AppointmentEditForm_VetFragmentDoc,
@@ -112,6 +114,10 @@ export function graphql(source: "\n  query BookingOptions {\n    owners {\n     
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query OwnerPets($ownerId: ID!) {\n    ownerPets(ownerId: $ownerId) {\n      id\n      name\n      species\n    }\n  }\n"): (typeof documents)["\n  query OwnerPets($ownerId: ID!) {\n    ownerPets(ownerId: $ownerId) {\n      id\n      name\n      species\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query PetOwner($petId: ID!) {\n    petOwner(petId: $petId) {\n      id\n    }\n  }\n"): (typeof documents)["\n  query PetOwner($petId: ID!) {\n    petOwner(petId: $petId) {\n      id\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router';
 
+import BookingLink from '../features/appointments/BookingLink';
 import SearchBox from '../features/search/SearchBox';
 import { useClinicTimeZone } from '../lib/time';
 
@@ -37,6 +38,7 @@ const Layout = () => {
             <SearchBox />
           </div>
           {timeZone && <span className="text-xs text-slate-500">Times in {timeZone}</span>}
+          <BookingLink />
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">

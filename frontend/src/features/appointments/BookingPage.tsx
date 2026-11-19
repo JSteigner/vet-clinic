@@ -1,24 +1,34 @@
 import { useMutation, useQuery } from '@apollo/client/react';
 import { type SubmitEvent, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import ErrorMessage from '../../components/ErrorMessage';
 import Field from '../../components/Field';
 import { INPUT, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../../components/styles';
 import { fieldErrors } from '../../lib/errors';
 import { fromWallTime, nextQuarterHour, todayInZone, useClinicTimeZone } from '../../lib/time';
-import { BOOKING_OPTIONS, CREATE_APPOINTMENT, OWNER_PETS } from './queries';
+import { BOOKING_OPTIONS, CREATE_APPOINTMENT, OWNER_PETS, PET_OWNER } from './queries';
 
-/** Books a visit: an owner, then one of their pets, a vet, a time and a reason. */
-const BookingPage = () => {
+/** `id` if `options` offers it, otherwise '' (e.g. an archived owner the form doesn't list). */
+const offered = (id: string | null | undefined, options: { id: string }[] | undefined) =>
+  id && options?.some((option) => option.id === id) ? id : '';
+
+/**
+ * Books a visit: an owner, then one of their pets, a vet, a time and a reason.
+ * `?ownerId=`, `?petId=` (which also picks the pet's owner), `?vetId=` and
+ * `?date=` fill in the form, as the header's Book appointment button does.
+ */
+const BookingForm = () => {
   const timeZone = useClinicTimeZone();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const day = searchParams.get('date');
+  const petParam = searchParams.get('petId');
 
-  const [ownerId, setOwnerId] = useState('');
-  const [petId, setPetId] = useState('');
-  const [vetId, setVetId] = useState('');
+  // Each is null until changed: until then it follows what the URL fills in.
+  const [ownerDraft, setOwnerId] = useState<string | null>(null);
+  const [petDraft, setPetId] = useState<string | null>(null);
+  const [vetDraft, setVetId] = useState<string | null>(null);
   // null until the time is edited: until then it follows the default below.
   const [startsAtDraft, setStartsAt] = useState<string | null>(null);
   const [reason, setReason] = useState('');
@@ -32,7 +42,15 @@ const BookingPage = () => {
   const startsAt = startsAtDraft ?? defaultStartsAt;
 
   const { data: options, error: optionsError } = useQuery(BOOKING_OPTIONS);
+  const { data: petOwner } = useQuery(PET_OWNER, {
+    variables: { petId: petParam ?? '' },
+    skip: !petParam,
+  });
+  const ownerId =
+    ownerDraft ?? offered(searchParams.get('ownerId') ?? petOwner?.petOwner?.id, options?.owners);
   const { data: petsData } = useQuery(OWNER_PETS, { variables: { ownerId }, skip: !ownerId });
+  const petId = petDraft ?? offered(petParam, petsData?.ownerPets);
+  const vetId = vetDraft ?? offered(searchParams.get('vetId'), options?.vets);
   const [createAppointment, { loading, error }] = useMutation(CREATE_APPOINTMENT);
   const errors = fieldErrors(error);
 
@@ -153,6 +171,13 @@ const BookingPage = () => {
       </form>
     </section>
   );
+};
+
+/** The booking form, started fresh whenever the URL's query changes. */
+const BookingPage = () => {
+  const { search } = useLocation();
+
+  return <BookingForm key={search} />;
 };
 
 export default BookingPage;

@@ -8,7 +8,7 @@ import { fromWallTime, shiftDate, todayInZone } from '../../lib/time';
 import LocationDisplay from '../../test/LocationDisplay';
 import { renderWithProviders, TEST_TIME_ZONE } from '../../test/render';
 import BookingPage from './BookingPage';
-import { BOOKING_OPTIONS, CREATE_APPOINTMENT, OWNER_PETS } from './queries';
+import { BOOKING_OPTIONS, CREATE_APPOINTMENT, OWNER_PETS, PET_OWNER } from './queries';
 
 const tomorrow = shiftDate(todayInZone(TEST_TIME_ZONE), 1);
 
@@ -116,6 +116,68 @@ describe('BookingPage', () => {
       await userEvent.setup().type(screen.getByLabelText('Reason'), 'x');
 
       expect(time).toHaveValue('2026-11-13T10:30');
+    });
+  });
+
+  describe('filled in from the URL', () => {
+    const fields = () => ({
+      owner: screen.getByLabelText('Owner'),
+      pet: screen.getByLabelText('Pet'),
+      vet: screen.getByLabelText('Vet'),
+    });
+
+    test('picks the owner and vet given', async () => {
+      renderPage([], '/appointments/new?ownerId=20&vetId=30');
+
+      await screen.findByRole('option', { name: 'Rex' });
+      expect(fields().owner).toHaveValue('20');
+      expect(fields().pet).toHaveValue('');
+      expect(fields().vet).toHaveValue('30');
+    });
+
+    test('picks the pet given, and its owner', async () => {
+      renderPage(
+        [
+          {
+            request: { query: PET_OWNER, variables: { petId: '10' } },
+            result: { data: { petOwner: { __typename: 'Owner', id: '20' } } },
+          },
+        ],
+        '/appointments/new?petId=10',
+      );
+
+      await screen.findByRole('option', { name: 'Rex' });
+      expect(fields().owner).toHaveValue('20');
+      expect(fields().pet).toHaveValue('10');
+    });
+
+    test("ignores an owner or vet the form doesn't offer, e.g. an archived one", async () => {
+      renderPage([], '/appointments/new?ownerId=99&vetId=98');
+
+      await screen.findByRole('option', { name: 'Ana Lima' });
+      expect(fields().owner).toHaveValue('');
+      expect(fields().vet).toHaveValue('');
+    });
+
+    test('lets the choices be changed, clearing the pet with a new owner', async () => {
+      const user = userEvent.setup();
+      renderPage(
+        [
+          {
+            request: { query: OWNER_PETS, variables: { ownerId: '21' } },
+            result: { data: { ownerPets: [] } },
+          },
+        ],
+        '/appointments/new?ownerId=20&vetId=30',
+      );
+      await screen.findByRole('option', { name: 'Rex' });
+      await user.selectOptions(fields().pet, 'Rex');
+
+      await user.selectOptions(fields().owner, 'Ben Cho');
+
+      expect(fields().owner).toHaveValue('21');
+      expect(fields().pet).toHaveValue('');
+      expect(fields().vet).toHaveValue('30');
     });
   });
 

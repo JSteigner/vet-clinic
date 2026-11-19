@@ -23,6 +23,14 @@ export const OWNER_PETS = graphql(`
   }
 `);
 
+export const PET_OWNER = graphql(`
+  query PetOwner($petId: ID!) {
+    petOwner(petId: $petId) {
+      id
+    }
+  }
+`);
+
 export const CREATE_APPOINTMENT = graphql(`
   mutation CreateAppointment($input: CreateAppointmentInput!) {
     createAppointment(input: $input) {

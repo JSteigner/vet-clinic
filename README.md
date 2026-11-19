@@ -121,7 +121,7 @@ Nested fields such as `owners { pets { appointments { vet { name } } } }` are ba
 | Route | Page |
 |---|---|
 | `/` | Daily schedule, kept live: check in, complete or cancel visits. The day is in the URL (`?date=`). |
-| `/appointments/new` | Booking: owner, then their pet, vet, time and reason |
+| `/appointments/new` | Booking: owner, then their pet, vet, time and reason. The header's Book appointment button, on every page, fills in the owner, pet, vet or day of the page it's on. |
 | `/appointments/:id` | One visit: status, reschedule or change vet while scheduled, delete |
 | `/owners`, `/owners/:id` | Owners and their pets: add, edit, archive; all their pets' visits, upcoming by default; archived owners read-only, with Restore |
 | `/pets/:id` | A pet's details and visit history, filtered by status; archived pets read-only, with Restore |

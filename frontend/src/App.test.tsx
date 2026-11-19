@@ -14,6 +14,10 @@ describe('App', () => {
     expect(nav).toHaveTextContent('Schedule');
     expect(nav).toHaveTextContent('Owners');
     expect(nav).toHaveTextContent('Vets');
+    expect(screen.getByRole('link', { name: 'Book appointment' })).toHaveAttribute(
+      'href',
+      '/appointments/new',
+    );
     expect(await screen.findByText(`Times in ${TEST_TIME_ZONE}`)).toBeInTheDocument();
   });
 

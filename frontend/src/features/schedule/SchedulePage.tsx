@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client/react';
-import { Link, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 
 import ErrorMessage from '../../components/ErrorMessage';
-import { PRIMARY_BUTTON } from '../../components/styles';
 import type { AppointmentStatus } from '../../gql/graphql';
 import { formatDate, shiftDate, todayInZone, useClinicTimeZone } from '../../lib/time';
 import AppointmentRow from './AppointmentRow';
@@ -87,12 +86,6 @@ const SchedulePage = () => {
               onChange={(event) => event.target.value && goTo(event.target.value)}
               className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm"
             />
-            <Link
-              to={`/appointments/new?date=${date}`}
-              className={`${PRIMARY_BUTTON} whitespace-nowrap`}
-            >
-              Book appointment
-            </Link>
           </div>
         )}
       </div>
