@@ -64,7 +64,7 @@ type Query {
   vet(id: ID!): Vet
   appointments(date: Date): [Appointment!]!          # clinic schedule; defaults to today in the clinic's time zone
   appointment(id: ID!): Appointment
-  vetAppointments(vetId: ID!, date: Date): [Appointment!]!
+  vetAppointments(vetId: ID!, date: Date, status: AppointmentStatus): [Appointment!]!
   petAppointments(petId: ID!, status: AppointmentStatus, includeArchived: Boolean = false): [Appointment!]!
   ownerAppointments(ownerId: ID!, status: AppointmentStatus, includeArchived: Boolean = false): [Appointment!]!  # all of the owner's pets
   search(                                 # owners, pets and vets matching term, grouped
@@ -125,7 +125,7 @@ Nested fields such as `owners { pets { appointments { vet { name } } } }` are ba
 | `/appointments/:id` | One visit: status, reschedule or change vet while scheduled, delete |
 | `/owners`, `/owners/:id` | Owners and their pets: add, edit, archive; all their pets' visits, upcoming by default; archived owners read-only, with Restore |
 | `/pets/:id` | A pet's details and visit history, filtered by status; archived pets read-only, with Restore |
-| `/vets`, `/vets/:id` | Vets and a vet's schedule for any day |
+| `/vets`, `/vets/:id` | Vets, a vet's schedule for any day, and all their visits, upcoming by default |
 | `/search` | All search results, up to 50 per group (`?q=`, `&archived=1` to include archived) |
 
 A few decisions worth calling out:

@@ -11,8 +11,9 @@ import { isNotFound } from '../../lib/errors';
 import { DELETE_VET, UPDATE_VET, VET } from './queries';
 import VetForm from './VetForm';
 import VetSchedule from './VetSchedule';
+import VetVisits from './VetVisits';
 
-/** One vet: details (editable), their schedule for a day, and deleting. */
+/** One vet: details (editable), their schedule for a day, all their visits, and deleting. */
 const VetPage = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
@@ -88,6 +89,8 @@ const VetPage = () => {
       )}
 
       <VetSchedule vetId={id} />
+
+      <VetVisits vetId={id} />
 
       <div className="space-y-3 border-t border-slate-200 pt-4">
         {deleteState.error && (

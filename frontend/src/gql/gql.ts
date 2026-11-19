@@ -45,7 +45,7 @@ type Documents = {
     "\n  fragment VetForm_vet on Vet {\n    id\n    name\n    email\n  }\n": typeof types.VetForm_VetFragmentDoc,
     "\n  query Vets {\n    vets {\n      id\n      name\n      email\n    }\n  }\n": typeof types.VetsDocument,
     "\n  query Vet($id: ID!) {\n    vet(id: $id) {\n      id\n      name\n      email\n      ...VetForm_vet\n    }\n  }\n": typeof types.VetDocument,
-    "\n  query VetAppointments($vetId: ID!, $date: Date) {\n    vetAppointments(vetId: $vetId, date: $date) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n        owner {\n          id\n          name\n        }\n      }\n    }\n  }\n": typeof types.VetAppointmentsDocument,
+    "\n  query VetAppointments($vetId: ID!, $date: Date, $status: AppointmentStatus) {\n    vetAppointments(vetId: $vetId, date: $date, status: $status) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n        owner {\n          id\n          name\n        }\n      }\n    }\n  }\n": typeof types.VetAppointmentsDocument,
     "\n  mutation CreateVet($input: CreateVetInput!) {\n    createVet(input: $input) {\n      id\n      name\n      email\n    }\n  }\n": typeof types.CreateVetDocument,
     "\n  mutation UpdateVet($id: ID!, $input: UpdateVetInput!) {\n    updateVet(id: $id, input: $input) {\n      id\n      name\n      email\n    }\n  }\n": typeof types.UpdateVetDocument,
     "\n  mutation DeleteVet($id: ID!) {\n    deleteVet(id: $id) {\n      id\n    }\n  }\n": typeof types.DeleteVetDocument,
@@ -83,7 +83,7 @@ const documents: Documents = {
     "\n  fragment VetForm_vet on Vet {\n    id\n    name\n    email\n  }\n": types.VetForm_VetFragmentDoc,
     "\n  query Vets {\n    vets {\n      id\n      name\n      email\n    }\n  }\n": types.VetsDocument,
     "\n  query Vet($id: ID!) {\n    vet(id: $id) {\n      id\n      name\n      email\n      ...VetForm_vet\n    }\n  }\n": types.VetDocument,
-    "\n  query VetAppointments($vetId: ID!, $date: Date) {\n    vetAppointments(vetId: $vetId, date: $date) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n        owner {\n          id\n          name\n        }\n      }\n    }\n  }\n": types.VetAppointmentsDocument,
+    "\n  query VetAppointments($vetId: ID!, $date: Date, $status: AppointmentStatus) {\n    vetAppointments(vetId: $vetId, date: $date, status: $status) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n        owner {\n          id\n          name\n        }\n      }\n    }\n  }\n": types.VetAppointmentsDocument,
     "\n  mutation CreateVet($input: CreateVetInput!) {\n    createVet(input: $input) {\n      id\n      name\n      email\n    }\n  }\n": types.CreateVetDocument,
     "\n  mutation UpdateVet($id: ID!, $input: UpdateVetInput!) {\n    updateVet(id: $id, input: $input) {\n      id\n      name\n      email\n    }\n  }\n": types.UpdateVetDocument,
     "\n  mutation DeleteVet($id: ID!) {\n    deleteVet(id: $id) {\n      id\n    }\n  }\n": types.DeleteVetDocument,
@@ -231,7 +231,7 @@ export function graphql(source: "\n  query Vet($id: ID!) {\n    vet(id: $id) {\n
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query VetAppointments($vetId: ID!, $date: Date) {\n    vetAppointments(vetId: $vetId, date: $date) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n        owner {\n          id\n          name\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query VetAppointments($vetId: ID!, $date: Date) {\n    vetAppointments(vetId: $vetId, date: $date) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n        owner {\n          id\n          name\n        }\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query VetAppointments($vetId: ID!, $date: Date, $status: AppointmentStatus) {\n    vetAppointments(vetId: $vetId, date: $date, status: $status) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n        owner {\n          id\n          name\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query VetAppointments($vetId: ID!, $date: Date, $status: AppointmentStatus) {\n    vetAppointments(vetId: $vetId, date: $date, status: $status) {\n      id\n      startsAt\n      reason\n      status\n      pet {\n        id\n        name\n        owner {\n          id\n          name\n        }\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

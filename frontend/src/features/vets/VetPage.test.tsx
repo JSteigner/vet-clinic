@@ -41,6 +41,13 @@ const schedule = (date: string, appointments: object[]): MockLink.MockedResponse
   result: { data: { vetAppointments: appointments } },
 });
 
+// VetVisits has its own tests; here it just needs an answer.
+const noUpcomingVisits: MockLink.MockedResponse = {
+  request: { query: VET_APPOINTMENTS, variables: { vetId: '30', status: 'SCHEDULED' } },
+  result: { data: { vetAppointments: [] } },
+  maxUsageCount: Number.POSITIVE_INFINITY,
+};
+
 const renderPage = (
   mocks: MockLink.MockedResponse[],
   { route = '/vets/30', cache }: { route?: string; cache?: InMemoryCache } = {},
@@ -53,7 +60,7 @@ const renderPage = (
       </Routes>
       <LocationDisplay />
     </>,
-    { mocks, route, cache },
+    { mocks: [noUpcomingVisits, ...mocks], route, cache },
   );
 
 const deleted: MockLink.MockedResponse = {
@@ -70,7 +77,7 @@ describe('VetPage', () => {
 
     expect(await screen.findByText(formatDate(tomorrow))).toBeInTheDocument();
     // Today needs the clinic zone; the visit list only renders once it's loaded.
-    expect(await screen.findByRole('list', { name: 'Visits' })).toBeInTheDocument();
+    expect(await screen.findByRole('list', { name: 'Schedule' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Today' }));
 
     expect(await screen.findByText(formatDate(today))).toBeInTheDocument();
@@ -124,7 +131,7 @@ describe('VetPage', () => {
     // user.type can't fill a date input in jsdom; set the value directly.
     fireEvent.change(await screen.findByLabelText('Day'), { target: { value: tomorrow } });
 
-    const list = within(await screen.findByRole('list', { name: 'Visits' }));
+    const list = within(await screen.findByRole('list', { name: 'Schedule' }));
     expect(list.getByRole('link', { name: '9:30 AM' })).toHaveAttribute('href', '/appointments/1');
     expect(list.getByRole('link', { name: 'Rex' })).toHaveAttribute('href', '/pets/10');
     expect(list.getByText('Ana Lima · Vaccines')).toBeInTheDocument();

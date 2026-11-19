@@ -62,7 +62,7 @@ const VetSchedule = ({ vetId }: { vetId: string }) => {
         <p className="text-sm text-slate-500">No visits on this day.</p>
       ) : (
         <ul
-          aria-label="Visits"
+          aria-label="Schedule"
           className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white"
         >
           {data.vetAppointments.map(({ id, startsAt, reason, status, pet }) => (

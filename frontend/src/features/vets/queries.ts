@@ -31,8 +31,8 @@ export const VET = graphql(`
 `);
 
 export const VET_APPOINTMENTS = graphql(`
-  query VetAppointments($vetId: ID!, $date: Date) {
-    vetAppointments(vetId: $vetId, date: $date) {
+  query VetAppointments($vetId: ID!, $date: Date, $status: AppointmentStatus) {
+    vetAppointments(vetId: $vetId, date: $date, status: $status) {
       id
       startsAt
       reason
