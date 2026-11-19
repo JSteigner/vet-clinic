@@ -2,7 +2,7 @@ import type { MockLink } from '@apollo/client/testing';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router';
-import { describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { fromWallTime, shiftDate, todayInZone } from '../../lib/time';
 import LocationDisplay from '../../test/LocationDisplay';
@@ -74,18 +74,49 @@ const fillIn = async (user: ReturnType<typeof userEvent.setup>) => {
 };
 
 describe('BookingPage', () => {
-  test("starts at 9:00 on the schedule's day, in the clinic zone", async () => {
+  test("starts at 9:00 on another day's schedule, in the clinic zone", async () => {
     renderPage([]);
 
     const time = await screen.findByLabelText(`Date and time (${TEST_TIME_ZONE})`);
     expect(time).toHaveValue(`${tomorrow}T09:00`);
   });
 
-  test('starts with no time, and goes back to the schedule, when opened without a day', async () => {
-    renderPage([], '/appointments/new');
+  describe('at 2:07 PM clinic time', () => {
+    // Only Date is faked, so Apollo's and user-event's timers run as usual.
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date('2026-11-12T20:07:30Z'));
+    });
 
-    expect(await screen.findByLabelText(`Date and time (${TEST_TIME_ZONE})`)).toHaveValue('');
-    expect(screen.getByRole('link', { name: 'Back to schedule' })).toHaveAttribute('href', '/');
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    test('starts at the next quarter hour, and goes back to the schedule, without a day', async () => {
+      renderPage([], '/appointments/new');
+
+      const time = await screen.findByLabelText(`Date and time (${TEST_TIME_ZONE})`);
+      expect(time).toHaveValue('2026-11-12T14:15');
+      expect(screen.getByRole('link', { name: 'Back to schedule' })).toHaveAttribute('href', '/');
+    });
+
+    test("starts at the next quarter hour from today's schedule", async () => {
+      renderPage([], '/appointments/new?date=2026-11-12');
+
+      const time = await screen.findByLabelText(`Date and time (${TEST_TIME_ZONE})`);
+      expect(time).toHaveValue('2026-11-12T14:15');
+    });
+
+    test('keeps a time once it has been changed', async () => {
+      renderPage([], '/appointments/new');
+
+      const time = await screen.findByLabelText(`Date and time (${TEST_TIME_ZONE})`);
+      fireEvent.change(time, { target: { value: '2026-11-13T10:30' } });
+      vi.setSystemTime(new Date('2026-11-12T20:20:00Z'));
+      await userEvent.setup().type(screen.getByLabelText('Reason'), 'x');
+
+      expect(time).toHaveValue('2026-11-13T10:30');
+    });
   });
 
   test('offers pets only after an owner is chosen', async () => {

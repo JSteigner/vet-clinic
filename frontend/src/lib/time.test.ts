@@ -1,6 +1,14 @@
 import { describe, expect, test } from 'vitest';
 
-import { formatDate, formatInZone, fromWallTime, shiftDate, todayInZone, toWallTime } from './time';
+import {
+  formatDate,
+  formatInZone,
+  fromWallTime,
+  nextQuarterHour,
+  shiftDate,
+  todayInZone,
+  toWallTime,
+} from './time';
 
 const CHICAGO = 'America/Chicago';
 
@@ -26,6 +34,13 @@ describe('time helpers', () => {
   test('toWallTime and fromWallTime round-trip through the clinic zone', () => {
     expect(toWallTime('2026-11-12T15:30:00Z', CHICAGO)).toBe('2026-11-12T09:30');
     expect(fromWallTime('2026-11-12T09:30', CHICAGO)).toBe('2026-11-12T15:30:00.000Z');
+  });
+
+  test('nextQuarterHour rounds up to the next quarter hour in the clinic zone', () => {
+    expect(nextQuarterHour(CHICAGO, new Date('2026-11-12T20:07:30Z'))).toBe('2026-11-12T14:15');
+    expect(nextQuarterHour(CHICAGO, new Date('2026-11-12T20:15:00Z'))).toBe('2026-11-12T14:30');
+    // 11:50 PM rolls over to the next day.
+    expect(nextQuarterHour(CHICAGO, new Date('2026-11-13T05:50:00Z'))).toBe('2026-11-13T00:00');
   });
 
   test('fromWallTime applies daylight saving time', () => {

@@ -6,7 +6,7 @@ import ErrorMessage from '../../components/ErrorMessage';
 import Field from '../../components/Field';
 import { INPUT, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../../components/styles';
 import { fieldErrors } from '../../lib/errors';
-import { fromWallTime, useClinicTimeZone } from '../../lib/time';
+import { fromWallTime, nextQuarterHour, todayInZone, useClinicTimeZone } from '../../lib/time';
 import { BOOKING_OPTIONS, CREATE_APPOINTMENT, OWNER_PETS } from './queries';
 
 /** Books a visit: an owner, then one of their pets, a vet, a time and a reason. */
@@ -19,8 +19,17 @@ const BookingPage = () => {
   const [ownerId, setOwnerId] = useState('');
   const [petId, setPetId] = useState('');
   const [vetId, setVetId] = useState('');
-  const [startsAt, setStartsAt] = useState(day ? `${day}T09:00` : '');
+  // null until the time is edited: until then it follows the default below.
+  const [startsAtDraft, setStartsAt] = useState<string | null>(null);
   const [reason, setReason] = useState('');
+
+  // Today (or no day given) starts at the next quarter hour; another day at 9:00.
+  const defaultStartsAt = !timeZone
+    ? ''
+    : day && day !== todayInZone(timeZone)
+      ? `${day}T09:00`
+      : nextQuarterHour(timeZone);
+  const startsAt = startsAtDraft ?? defaultStartsAt;
 
   const { data: options, error: optionsError } = useQuery(BOOKING_OPTIONS);
   const { data: petsData } = useQuery(OWNER_PETS, { variables: { ownerId }, skip: !ownerId });

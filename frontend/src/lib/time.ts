@@ -39,6 +39,19 @@ export const formatDate = (date: string): string => format(parseISO(date), 'EEEE
 export const toWallTime = (iso: string, zone: string): string =>
   format(new Date(iso), "yyyy-MM-dd'T'HH:mm", { in: tz(zone) });
 
+const QUARTER_HOUR_MS = 15 * 60 * 1000;
+
+/**
+ * The next quarter hour after `now` as a `datetime-local` value in `zone`,
+ * e.g. 2:07 PM gives 2:15 PM and 2:15 PM gives 2:30 PM. Time zones are offset
+ * from UTC by whole quarter hours, so rounding the instant rounds the clock.
+ */
+export const nextQuarterHour = (zone: string, now: Date = new Date()): string => {
+  const next = (Math.floor(now.getTime() / QUARTER_HOUR_MS) + 1) * QUARTER_HOUR_MS;
+
+  return toWallTime(new Date(next).toISOString(), zone);
+};
+
 /** A `datetime-local` value (YYYY-MM-DDTHH:mm) in `zone` as a UTC ISO timestamp. */
 export const fromWallTime = (wallTime: string, zone: string): string => {
   const [date, time] = wallTime.split('T');
