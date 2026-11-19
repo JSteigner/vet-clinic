@@ -65,10 +65,14 @@ defmodule VetClinicWeb.Schema.AppointmentTypes do
       resolve &Appointments.get_appointment/3
     end
 
-    @desc "A vet's appointments, ordered by start time, optionally for one date."
+    @desc """
+    A vet's appointments, ordered by start time, optionally for one date.
+    Filter by status, e.g. SCHEDULED for upcoming visits.
+    """
     field :vet_appointments, non_null(list_of(non_null(:appointment))) do
       arg :vet_id, non_null(:id)
       arg :date, :date
+      arg :status, :appointment_status
       resolve &Appointments.list_vet_appointments/3
     end
 

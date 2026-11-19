@@ -108,7 +108,8 @@ defmodule VetClinic.Clinic do
   @spec list_daily_clinic_appointments(Date.t()) :: [Appointment.t()]
   defdelegate list_daily_clinic_appointments(date), to: Appointments
 
-  @spec list_vet_appointments(integer(), date: Date.t()) :: [Appointment.t()]
+  @spec list_vet_appointments(integer(), date: Date.t(), status: Appointment.status()) ::
+          [Appointment.t()]
   defdelegate list_vet_appointments(vet_id, opts \\ []), to: Appointments
 
   @spec list_pet_appointments(integer(), status: Appointment.status()) :: [Appointment.t()]

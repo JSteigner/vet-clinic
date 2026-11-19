@@ -33,12 +33,16 @@ defmodule VetClinic.Appointments do
   ## Options
 
     * `:date` - only appointments on that date in the clinic's time zone
+    * `:status` - only appointments with that status, e.g. `:scheduled`
+      for upcoming visits
   """
-  @spec list_vet_appointments(integer(), date: Date.t()) :: [Appointment.t()]
+  @spec list_vet_appointments(integer(), date: Date.t(), status: Appointment.status()) ::
+          [Appointment.t()]
   def list_vet_appointments(vet_id, opts \\ []) do
     Appointment
     |> where([a], a.vet_id == ^vet_id)
     |> on_date(opts[:date])
+    |> filter_by(:status, opts[:status])
     |> order_by(:starts_at)
     |> Repo.all()
   end

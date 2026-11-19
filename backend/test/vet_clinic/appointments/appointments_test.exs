@@ -47,6 +47,18 @@ defmodule VetClinic.AppointmentsTest do
 
       assert ids(Appointments.list_vet_appointments(vet.id, date: day)) == [on_day.id]
     end
+
+    test "can be filtered by status" do
+      vet = vet_fixture()
+      scheduled = appointment_fixture(%{vet_id: vet.id})
+      completed = past_appointment_fixture(%{vet_id: vet.id, status: :completed})
+
+      assert ids(Appointments.list_vet_appointments(vet.id, status: :completed)) ==
+               [completed.id]
+
+      assert ids(Appointments.list_vet_appointments(vet.id, status: :scheduled)) ==
+               [scheduled.id]
+    end
   end
 
   describe "list_pet_appointments/2" do

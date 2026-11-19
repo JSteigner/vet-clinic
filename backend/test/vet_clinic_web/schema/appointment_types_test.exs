@@ -54,8 +54,8 @@ defmodule VetClinicWeb.Schema.AppointmentTypesTest do
 
   describe "vetAppointments query" do
     @query """
-    query ($vetId: ID!, $date: Date) {
-      vetAppointments(vetId: $vetId, date: $date) { id }
+    query ($vetId: ID!, $date: Date, $status: AppointmentStatus) {
+      vetAppointments(vetId: $vetId, date: $date, status: $status) { id }
     }
     """
 
@@ -72,6 +72,16 @@ defmodule VetClinicWeb.Schema.AppointmentTypesTest do
 
       assert ids(all) == ["#{tomorrow.id}", "#{next_week.id}"]
       assert ids(on_date) == ["#{tomorrow.id}"]
+    end
+
+    test "filters the vet's appointments by status", %{conn: conn} do
+      upcoming = appointment_fixture()
+      past = past_appointment_fixture(%{vet_id: upcoming.vet_id, status: :completed})
+
+      assert %{"data" => %{"vetAppointments" => history}} =
+               graphql(conn, @query, %{vetId: upcoming.vet_id, status: "COMPLETED"})
+
+      assert ids(history) == ["#{past.id}"]
     end
 
     test "returns not found for an unknown vet", %{conn: conn} do

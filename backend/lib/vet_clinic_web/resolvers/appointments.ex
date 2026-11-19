@@ -32,7 +32,7 @@ defmodule VetClinicWeb.Resolvers.Appointments do
           Helpers.result([Appointment.t()])
   def list_vet_appointments(_parent, %{vet_id: vet_id} = args, _resolution) do
     with {:ok, vet} <- Helpers.fetch(vet_id, &Clinic.get_vet/1, "vet") do
-      {:ok, Clinic.list_vet_appointments(vet.id, filters(args, [:date]))}
+      {:ok, Clinic.list_vet_appointments(vet.id, filters(args, [:date, :status]))}
     end
   end
 

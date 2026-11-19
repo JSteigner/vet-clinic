@@ -41,8 +41,11 @@ type RootQueryType {
   "An appointment by ID."
   appointment(id: ID!): Appointment
 
-  "A vet's appointments, ordered by start time, optionally for one date."
-  vetAppointments(vetId: ID!, date: Date): [Appointment!]!
+  """
+  A vet's appointments, ordered by start time, optionally for one date.
+  Filter by status, e.g. SCHEDULED for upcoming visits.
+  """
+  vetAppointments(vetId: ID!, date: Date, status: AppointmentStatus): [Appointment!]!
 
   """
   A pet's appointments, ordered by start time. Filter by status, e.g.
